@@ -1,0 +1,35 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme {
+
+  /* Backgrounds and service colors */
+  --color-background: #F2F9FF;  /* light soft background */
+  --color-theme: #FFD39D;       /* brand / theme color */
+  --color-product: #FFB9B9;     /* product section */
+  --color-hotel: #FFCCE1;       /* hotel section */
+  --color-sitter: #F8F7BA;      /* sitter section */
+  --color-insurance: #BDE3C3;   /* insurance section */
+  --color-pharmacy: #A3CCDA;    /* pharmacy section */
+
+  /* Fonts */
+  --font-sans: "Poppins", ui-sans-serif, system-ui;
+  --font-heading: "Merriweather", serif;
+
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  @apply bg-[var(--color-background)] text-gray-800;
+  font-family: var(--font-sans);
+}
