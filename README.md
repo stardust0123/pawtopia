@@ -46,28 +46,43 @@ Built using **Next.js 14**, **TailwindCSS**, and **PostgreSQL (via Prisma ORM)**
 ## 🗂️ Project Structure
 
 pawtopia/
-│
-├── prisma/ # Prisma schema and migrations
+├── prisma/
 │ ├── schema.prisma
 │ └── seed.ts
 │
-├── public/ # Static assets (images, icons, etc.)
+├── public/
 │ └── images/
+│ ├── logo.jpg
+│ ├── hero-cat.png
+│ └── (other images…)
 │
 ├── src/
-│ ├── app/ # Next.js App Router pages
+│ ├── app/
 │ │ ├── page.tsx # Home page
 │ │ ├── products/
+│ │ │ └── page.tsx # Products listing
 │ │ ├── services/
+│ │ │ └── page.tsx # Services overview
 │ │ ├── about/
+│ │ │ └── page.tsx # About page
 │ │ └── api/
-│ │ └── products/ # API routes for Prisma
-│ └── components/ # Navbar, Footer, Cards, etc.
+│ │ └── products/
+│ │ └── route.ts # API endpoint for products
+│ │
+│ └── components/
+│ ├── Nav.tsx # Responsive navbar
+│ ├── Footer.tsx # Footer component
+│ └── (other UI components…)
 │
-├── .env # Database connection string
+├── .env # Neon PostgreSQL connection
+├── .gitignore
+├── next.config.ts
 ├── package.json
+├── postcss.config.mjs
 ├── tailwind.config.ts
+├── tsconfig.json
 └── README.md
+
 
 ## 🚀 Getting Started
 
