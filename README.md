@@ -67,7 +67,40 @@ npx prisma init
 Apply database migrations
 npx prisma migrate dev --name init
 
+## 📦 Dependencies
+
+### Core Frameworks & Libraries
+| Package | Description |
+|----------|-------------|
+| **next** | React framework for full-stack web apps |
+| **react** | UI library used by Next.js |
+| **react-dom** | Rendering engine for React components |
+| **typescript** | Type checking and better code organization |
+| **tailwindcss** | Utility-first CSS framework for styling |
+| **postcss** | CSS processor used by Tailwind |
+| **autoprefixer** | Automatically adds CSS vendor prefixes |
+| **@prisma/client** | Prisma ORM client for database access |
+| **prisma** | Database schema & migration management tool |
+| **lucide-react** | Modern SVG icon library for React |
+| **dotenv** | Loads environment variables from `.env` file |
+
+---
+
+### 🧩 Dev Dependencies
+| Package | Description |
+|----------|-------------|
+| **eslint** | JavaScript/TypeScript linter |
+| **eslint-config-next** | ESLint config optimized for Next.js |
+| **ts-node** | TypeScript execution for seeding scripts |
+| **@types/node** | Type definitions for Node.js |
+| **@types/react** | Type definitions for React |
+| **@types/react-dom** | Type definitions for React DOM |
+
+---
+
 ### ⚙️ Versions (from `package.json`)
+If you want reproducibility, here’s your project’s dependency list at a glance:
+
 ```json
 "dependencies": {
   "@prisma/client": "^5.x",
@@ -89,9 +122,3 @@ npx prisma migrate dev --name init
   "ts-node": "^10.x",
   "typescript": "^5.x"
 }
-
-Open Prisma Studio (browser UI)
-npx prisma studio
-
-Seed example products
-npm run seed
