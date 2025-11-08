@@ -71,7 +71,6 @@ pawtopia/
 ## 🚀 Getting Started
 
 1️⃣ Clone the repository
-```bash
 git clone https://github.com/yourusername/pawtopia.git
 cd pawtopia
 
