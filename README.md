@@ -66,6 +66,7 @@ pawtopia/
 │
 ├── .env # Database connection string
 ├── package.json
+├── tailwind.config.ts
 └── README.md
 
 ## 🚀 Getting Started
