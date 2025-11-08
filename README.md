@@ -70,15 +70,15 @@ pawtopia/
 
 ## 🚀 Getting Started
 
-### 1️⃣ Clone the repository
+1️⃣ Clone the repository
 ```bash
 git clone https://github.com/yourusername/pawtopia.git
 cd pawtopia
 
-### 2️⃣ Install dependencies
+2️⃣ Install dependencies
 npm install
 
-### 3️⃣ Run the development server
+3️⃣ Run the development server
 npm run dev
 Then open your browser to http://localhost:3000
 ⚙️ Environment Setup
