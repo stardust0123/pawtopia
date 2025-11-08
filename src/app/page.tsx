@@ -19,22 +19,21 @@ export default function Home() {
           </p>
 
           {/* CTA Buttons */}
-          <div className="space-x-4">
-            <Link
-              href="/services"
-              className="inline-block px-6 py-3 bg-theme text-gray-800 rounded-lg font-semibold shadow hover:brightness-110 transition"
-            >
-              Explore Services
-            </Link>
-            <Link
-              href="/products"
-              className="inline-block px-6 py-3 border-2 border-theme text-theme rounded-lg font-semibold hover:bg-theme hover:text-gray-800 transition"
-            >
-              View Products
-            </Link>
-          </div>
-        </div>
-
+            <div className="flex flex-col sm:flex-row items-center sm:space-x-4 space-y-3 sm:space-y-0">
+              <Link
+                href="/services"
+                className="inline-block px-6 py-3 bg-orange-300 text-white rounded-lg hover:bg-orange-400 transition w-full sm:w-auto text-center"
+              >
+                Explore Services
+              </Link>
+              <Link
+                href="/products"
+                className="inline-block px-6 py-3 border bg-background text-orange-400 rounded-lg hover:bg-blue-50 transition w-full sm:w-auto text-center"
+              >
+                View Products
+              </Link>
+            </div>
+            </div>
         {/* Right Image Section */}
         <div className="relative w-64 h-64 md:w-96 md:h-96 rounded-full overflow-hidden shadow-lg">
           <Image
