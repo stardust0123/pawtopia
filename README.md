@@ -67,6 +67,29 @@ npx prisma init
 Apply database migrations
 npx prisma migrate dev --name init
 
+### ⚙️ Versions (from `package.json`)
+```json
+"dependencies": {
+  "@prisma/client": "^5.x",
+  "lucide-react": "^0.x",
+  "next": "^14.x",
+  "react": "^18.x",
+  "react-dom": "^18.x",
+  "tailwindcss": "^3.x",
+  "postcss": "^8.x",
+  "autoprefixer": "^10.x",
+  "dotenv": "^16.x"
+},
+"devDependencies": {
+  "@types/node": "^20.x",
+  "@types/react": "^18.x",
+  "@types/react-dom": "^18.x",
+  "eslint": "^8.x",
+  "eslint-config-next": "^14.x",
+  "ts-node": "^10.x",
+  "typescript": "^5.x"
+}
+
 Open Prisma Studio (browser UI)
 npx prisma studio
 
