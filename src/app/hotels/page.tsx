@@ -198,7 +198,7 @@ export default function HotelsPage() {
             value={filters.city}
             onChange={(e) => setFilters({ ...filters, city: e.target.value })}
           >
-            <option value="">Filter for city</option>
+            <option value="">All cities</option>
             <option value="Ho Chi Minh City">Ho Chi Minh City</option>
             <option value="Hanoi">Hanoi</option>
             <option value="Da Nang">Da Nang</option>
@@ -209,7 +209,7 @@ export default function HotelsPage() {
             value={filters.minRating}
             onChange={(e) => setFilters({ ...filters, minRating: Number(e.target.value) || 0 })}
           >
-            <option value={0}>Filter for ratings</option>
+            <option value={0}>All ratings</option>
             <option value={4.5}>4.5+</option>
             <option value={4}>4+</option>
             <option value={3.5}>3.5+</option>
@@ -219,14 +219,14 @@ export default function HotelsPage() {
           <div className="grid grid-cols-2 gap-4">
             <input
               type="number"
-              placeholder="Minimum price (in VND)"
+              placeholder="Minimum price"
               className="w-full p-3 border border-gray-300 rounded-lg bg-blue-50"
               value={filters.minPrice}
               onChange={(e) => setFilters({ ...filters, minPrice: e.target.value })}
             />
             <input
               type="number"
-              placeholder="Maximum price (in VND)"
+              placeholder="Maximum price"
               className="w-full p-3 border border-gray-300 rounded-lg bg-blue-50"
               value={filters.maxPrice}
               onChange={(e) => setFilters({ ...filters, maxPrice: e.target.value })}
@@ -311,7 +311,7 @@ export default function HotelsPage() {
                     <div className="flex flex-wrap items-end justify-between gap-4">
                       <div className="flex flex-wrap gap-3">
                         <span className="bg-orange-200 px-3 py-1 rounded text-sm">
-                          Google Map Ratings: {hotel.googleRating}
+                          Google Ratings: {hotel.googleRating}
                         </span>
                         <span className="bg-orange-200 px-3 py-1 rounded text-sm">
                           Pawtopia Ratings: {hotel.pawtopiaRating}

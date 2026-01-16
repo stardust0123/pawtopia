@@ -48,6 +48,7 @@ const mockHotels = [
             'https://images.squarespace-cdn.com/content/v1/651b1ae5fa3ff4418caec5aa/1696277311141-C53PARPITRK7QK7PE5FL/Cat+Boarding',
             'https://c8.alamy.com/comp/2PJ8R19/cats-room-interior-in-blue-wall-with-cat-house-and-cat-condo-room-designed-for-cat-3d-rendering-2PJ8R19.jpg',
             'https://www.shutterstock.com/image-illustration/cats-room-interior-blue-wall-600nw-2284395221.jpg',
+            'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&q=80&w=800',
         ],
         amenities: ['Clean & Ventilated Rooms', 'Fresh Meals Twice Daily', 'Easy Access Location', 'Budget-Friendly Pricing', 'Gentle Staff Interaction'],
         contact: { phone: '+84 28 5412 3456', email: 'book@purrfectstay.com' },
@@ -71,9 +72,12 @@ const mockHotels = [
         price: 600000,
         photos: [
             'https://alcalacountrypetresort.com/wp-content/uploads/2022/07/Cat-Boarding-Gallery-2-1.jpg',
-            'https://images.unsplash.com/photo-1606213479814-4e3d8c1c6c8d?auto=format&fit=crop&q=80',
+            // Photo 2 – replaced (was blank)
+            'https://images.unsplash.com/photo-1518791841217-8f162f1e1131?auto=format&fit=crop&q=80',
+            // Photo 3 – changed to avoid repetition
+            'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&q=80',
+            // Photo 4 – replaced (was blank)
             'https://images.unsplash.com/photo-1583511655826-05700d52f4d9?auto=format&fit=crop&q=80',
-            'https://images.unsplash.com/photo-1592194996308-7b43878e19c9?auto=format&fit=crop&q=80',
         ],
         amenities: ['Large Play Zones', 'Multi-Level Climbing Trees', 'Interactive Toys', 'Daily Supervised Play', 'Photo/Video Updates'],
         contact: { phone: '+84 28 3930 5678', email: 'play@whiskersresort.vn' },
@@ -207,6 +211,8 @@ const mockHotels = [
             'https://pix10.agoda.net/hotelImages/412145/-1/80ceda91103de739085700f76efc85b3.jpg?ce=0&s=414x232',
             'https://images.unsplash.com/photo-1583512603805-3cc6b41f3edb?auto=format&fit=crop&q=80',
             'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?auto=format&fit=crop&q=80',
+            // Added 4th photo (previously only 3)
+            'https://images.unsplash.com/photo-1592194996308-7b43878e19c9?auto=format&fit=crop&q=80',
         ],
         amenities: ['River View Rooms', 'Automatic Feeders', 'Daily Cleaning', 'Interactive Play', 'Central Location'],
         contact: { phone: '+84 236 389 1234', email: 'stay@kittylodgedn.vn' },
@@ -276,10 +282,8 @@ const mockHotels = [
 ];
 
 export default function HotelDetailPage({ params }: { params: { id: string } }) {
-    // Unwrap params using React.use() for Client Components
     const resolvedParams = use(params);
     const hotelId = Number(resolvedParams.id);
-
     const hotel = mockHotels.find((h) => h.id === hotelId);
 
     if (!hotel) {
@@ -308,15 +312,20 @@ export default function HotelDetailPage({ params }: { params: { id: string } }) 
             </nav>
 
             <div className="max-w-7xl mx-auto px-4 py-8">
-                {/* Hotel Name and Ratings */}
-                <div className="text-center mb-8">
-                    <h1 className="text-4xl font-bold text-blue-900 mb-2">{hotel.name}</h1>
-                    <p className="text-gray-700 mb-4">{hotel.location}</p>
-                    <div className="flex justify-center gap-4">
-                        <span className="bg-orange-200 px-4 py-2 rounded text-sm">
+                {/* Hotel Name and Ratings – title and location made slightly smaller */}
+                <div className="text-center mb-10">
+                    <h1 className="text-4xl md:text-5xl font-extrabold text-blue-950 mb-6 drop-shadow-md">
+                        {hotel.name}
+                    </h1>
+                    <p className="text-xl md:text-2xl font-bold text-gray-900 italic mb-6">
+                        {hotel.location}
+                    </p>
+
+                    <div className="flex justify-center gap-6 flex-wrap">
+                        <span className="bg-orange-200 px-5 py-3 rounded-lg text-base font-semibold">
                             Google Rating: {hotel.googleRating}/5
                         </span>
-                        <span className="bg-orange-200 px-4 py-2 rounded text-sm">
+                        <span className="bg-orange-200 px-5 py-3 rounded-lg text-base font-semibold">
                             Pawtopia Rating: {hotel.pawtopiaRating}/5
                         </span>
                     </div>
@@ -336,7 +345,7 @@ export default function HotelDetailPage({ params }: { params: { id: string } }) 
                     ))}
                 </div>
 
-                {/* Description - now longer with at least 5 sentences */}
+                {/* Description */}
                 <div className="bg-white p-6 rounded-xl shadow-md mb-8">
                     <h2 className="text-2xl font-bold mb-4">About {hotel.name}</h2>
                     <p className="text-gray-700">{hotel.description}</p>
@@ -354,7 +363,7 @@ export default function HotelDetailPage({ params }: { params: { id: string } }) 
                     </ul>
                 </div>
 
-                {/* Map - replace YOUR_GOOGLE_MAPS_API_KEY with real key */}
+                {/* Map */}
                 <div className="bg-white p-6 rounded-xl shadow-md mb-8">
                     <h2 className="text-2xl font-bold mb-4">Location</h2>
                     <iframe
