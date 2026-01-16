@@ -2,39 +2,34 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 async function main() {
-  const products = [
+  const hotels = [
     {
-      name: "Cat Bed",
-      description: "Soft and cozy bed for cats",
-      price: 39.99,
-      imageUrl: "/images/cat-bed.jpg",
-      category: "Bedding",
+      name: "Cozy Cat Inn",
+      location: "Hanoi, Vietnam",
+      pricePerNight: 35.0,
+      description: "A comfortable cat hotel with private playrooms.",
+      imageUrl: "/images/hotels/cozy-cat-inn.jpg",
+      contact: "contact@cozycat.vn",
     },
     {
-      name: "Cat Toy",
-      description: "Fun toy to keep your cat active",
-      price: 9.99,
-      imageUrl: "/images/cat-toy.jpg",
-      category: "Toys",
-    },
-    {
-      name: "Cat Food",
-      description: "Healthy and tasty cat food",
-      price: 19.99,
-      imageUrl: "/images/cat-food.jpg",
-      category: "Food",
+      name: "Whisker Retreat",
+      location: "Ho Chi Minh City, Vietnam",
+      pricePerNight: 42.5,
+      description: "Luxury cat boarding with daily grooming and treats.",
+      imageUrl: "/images/hotels/whisker-retreat.jpg",
+      contact: "info@whiskerretreat.vn",
     },
   ];
 
-  for (const product of products) {
-    await prisma.product.create({ data: product });
+  for (const hotel of hotels) {
+    await prisma.hotel.create({ data: hotel });
   }
 
-  console.log("Seed data created!");
+  console.log("✅ Hotel data created!");
 }
 
 main()
-  .catch(e => console.error(e))
+  .catch((e) => console.error(e))
   .finally(async () => {
     await prisma.$disconnect();
   });

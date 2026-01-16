@@ -17,3 +17,15 @@ model Product {
   category    String
   createdAt   DateTime @default(now())
 }
+
+model Hotel {
+  id          Int      @id @default(autoincrement())
+  name        String
+  location    String
+  pricePerNight Float
+  description String
+  imageUrl    String
+  contact     String?
+  createdAt   DateTime @default(now())
+}
+
