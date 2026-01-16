@@ -69,16 +69,43 @@ const mockHotels = [
         ],
         reviews: [
             {
-                user: 'Cat Lover Jane',
+                user: 'Jane T.',
                 rating: 5,
-                comment: 'Amazing place! My cat loved it.',
+                comment: 'Absolutely amazing service. My cat came back calm and happy.',
+                date: '2024-11-12',
             },
             {
-                user: 'Perry',
+                user: 'Minh Nguyen',
                 rating: 4,
-                comment: 'Good service, but a bit pricey.',
+                comment: 'Clean rooms and friendly staff. Slightly expensive.',
+                date: '2024-10-28',
+            },
+            {
+                user: 'Sarah L.',
+                rating: 5,
+                comment: 'Loved the daily photo updates. Highly recommended.',
+                date: '2024-10-05',
+            },
+            {
+                user: 'Hoang Tran',
+                rating: 4,
+                comment: 'Good location and professional care.',
+                date: '2024-09-18',
+            },
+            {
+                user: 'Alex P.',
+                rating: 5,
+                comment: 'Best cat hotel I have used so far.',
+                date: '2024-08-30',
+            },
+            {
+                user: 'Linh Pham',
+                rating: 4,
+                comment: 'My cat adapted very quickly. Will book again.',
+                date: '2024-08-12',
             },
         ],
+
     },
     {
         id: 2,
@@ -550,6 +577,18 @@ const mockHotels = [
 
 ];
 
+const renderStars = (rating: number) => {
+    return (
+        <div className="flex text-yellow-500">
+            {[1, 2, 3, 4, 5].map((star) => (
+                <span key={star}>
+                    {star <= rating ? '★' : '☆'}
+                </span>
+            ))}
+        </div>
+    );
+};
+
 
 /* =========================
    Page Component
@@ -571,6 +610,7 @@ export default function HotelDetailPage({
         start: '',
         end: '',
     });
+
     const [selectedRoom, setSelectedRoom] = useState(hotel.rooms[0].type);
     const [reviews, setReviews] = useState(hotel.reviews);
     const [newReview, setNewReview] = useState({ rating: 5, comment: '' });
@@ -601,8 +641,30 @@ export default function HotelDetailPage({
             <div className="max-w-7xl mx-auto px-4 py-8">
                 {/* Header */}
                 <div className="text-center mb-10">
-                    <h1 className="text-4xl font-extrabold mb-4">{hotel.name}</h1>
-                    <p className="text-lg italic">{hotel.location}</p>
+                    <h1 className="text-4xl font-extrabold mb-2">
+                        {hotel.name}
+                    </h1>
+
+                    <p className="text-lg italic mb-3">
+                        {hotel.location}
+                    </p>
+
+                    {/* Ratings */}
+                    <div className="flex justify-center gap-6 text-sm md:text-base">
+                        <div className="bg-white px-4 py-2 rounded-full shadow">
+                            ⭐ Google Rating:{' '}
+                            <span className="font-semibold">
+                                {hotel.googleRating} / 5
+                            </span>
+                        </div>
+
+                        <div className="bg-purple-100 px-4 py-2 rounded-full shadow">
+                            🐾 Pawtopia Rating:{' '}
+                            <span className="font-semibold text-purple-800">
+                                {hotel.pawtopiaRating} / 5
+                            </span>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Photos */}
@@ -629,18 +691,22 @@ export default function HotelDetailPage({
                 <div className="bg-white p-6 rounded-xl shadow mb-8">
                     <h2 className="text-2xl font-bold mb-4">Amenities</h2>
                     <ul className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                        {hotel.amenities.map((a, i) => (
-                            <li key={i}>• {a}</li>
+                        {hotel.amenities.map((amenity, index) => (
+                            <li key={index}>• {amenity}</li>
                         ))}
                     </ul>
                 </div>
 
-                {/* Leaflet Location */}
+                {/* Location */}
                 <div className="bg-white p-6 rounded-xl shadow mb-8">
                     <h2 className="text-2xl font-bold mb-4">Location</h2>
+
                     <div className="h-[450px] rounded-lg overflow-hidden">
                         <MapContainer
-                            center={[hotel.coordinates.lat, hotel.coordinates.lng]}
+                            center={[
+                                hotel.coordinates.lat,
+                                hotel.coordinates.lng,
+                            ]}
                             zoom={15}
                             scrollWheelZoom={false}
                             className="h-full w-full"
@@ -649,6 +715,7 @@ export default function HotelDetailPage({
                                 attribution="&copy; OpenStreetMap contributors"
                                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                             />
+
                             <Marker
                                 position={[
                                     hotel.coordinates.lat,
@@ -674,15 +741,22 @@ export default function HotelDetailPage({
                         className="border p-2 w-full mb-4"
                         value={selectedDates.start}
                         onChange={(e) =>
-                            setSelectedDates({ ...selectedDates, start: e.target.value })
+                            setSelectedDates({
+                                ...selectedDates,
+                                start: e.target.value,
+                            })
                         }
                     />
+
                     <input
                         type="date"
                         className="border p-2 w-full mb-4"
                         value={selectedDates.end}
                         onChange={(e) =>
-                            setSelectedDates({ ...selectedDates, end: e.target.value })
+                            setSelectedDates({
+                                ...selectedDates,
+                                end: e.target.value,
+                            })
                         }
                     />
 
@@ -708,31 +782,84 @@ export default function HotelDetailPage({
 
                 {/* Reviews */}
                 <div className="bg-white p-6 rounded-xl shadow">
-                    <h2 className="text-2xl font-bold mb-4">Reviews</h2>
+                    <h2 className="text-2xl font-bold mb-6">
+                        Reviews ({reviews.length})
+                    </h2>
 
-                    {reviews.map((r, i) => (
-                        <div key={i} className="border-b py-2">
-                            <strong>{r.user}</strong> — {r.rating}/5
-                            <p>{r.comment}</p>
-                        </div>
-                    ))}
+                    <div className="space-y-6">
+                        {reviews.map((review, index) => (
+                            <div key={index} className="border-b pb-4">
+                                <div className="flex justify-between items-center mb-1">
+                                    <strong className="text-gray-800">
+                                        {review.user}
+                                    </strong>
+                                    <span className="text-sm text-gray-500">
+                                        {new Date(review.date).toLocaleDateString('en-GB')}
+                                    </span>
+                                </div>
 
-                    <textarea
-                        className="border p-2 w-full mt-4"
-                        placeholder="Write a review..."
-                        value={newReview.comment}
-                        onChange={(e) =>
-                            setNewReview({ ...newReview, comment: e.target.value })
-                        }
-                    />
+                                {renderStars(review.rating)}
 
-                    <button
-                        onClick={handleAddReview}
-                        className="bg-purple-500 text-white w-full py-3 mt-4 rounded"
-                    >
-                        Submit Review
-                    </button>
+                                <p className="mt-2 text-gray-700">
+                                    {review.comment}
+                                </p>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Add Review */}
+                    <div className="mt-8">
+                        <h3 className="font-semibold mb-2">Write a review</h3>
+
+                        <select
+                            className="border p-2 w-full mb-3"
+                            value={newReview.rating}
+                            onChange={(e) =>
+                                setNewReview({
+                                    ...newReview,
+                                    rating: Number(e.target.value),
+                                })
+                            }
+                        >
+                            {[5, 4, 3, 2, 1].map((r) => (
+                                <option key={r} value={r}>
+                                    {r} Star{r > 1 ? 's' : ''}
+                                </option>
+                            ))}
+                        </select>
+
+                        <textarea
+                            className="border p-2 w-full mb-3"
+                            placeholder="Share your experience..."
+                            value={newReview.comment}
+                            onChange={(e) =>
+                                setNewReview({
+                                    ...newReview,
+                                    comment: e.target.value,
+                                })
+                            }
+                        />
+
+                        <button
+                            onClick={() => {
+                                setReviews([
+                                    ...reviews,
+                                    {
+                                        user: 'You',
+                                        rating: newReview.rating,
+                                        comment: newReview.comment,
+                                        date: new Date().toISOString().split('T')[0],
+                                    },
+                                ]);
+                                setNewReview({ rating: 5, comment: '' });
+                            }}
+                            className="bg-purple-500 text-white w-full py-3 rounded"
+                        >
+                            Submit Review
+                        </button>
+                    </div>
                 </div>
+
             </div>
         </div>
     );
