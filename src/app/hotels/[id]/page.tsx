@@ -8,6 +8,7 @@ import { notFound } from 'next/navigation';
 import 'leaflet/dist/leaflet.css';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
+import Link from 'next/link';
 
 /* =========================
    Fix Leaflet marker icons
@@ -639,6 +640,17 @@ export default function HotelDetailPage({
             </nav>
 
             <div className="max-w-7xl mx-auto px-4 py-8">
+                {/* Back to hotels */}
+                <div className="mb-6">
+                    <Link
+                        href="/hotels"
+                        className="inline-flex items-center text-base font-medium text-blue-400 hover:text-blue-500"
+                    >
+                        <span className="mr-2 text-lg">←</span>
+                        See all hotels
+                    </Link>
+                </div>
+
                 {/* Header */}
                 <div className="text-center mb-10">
                     <h1 className="text-4xl font-extrabold mb-2">
