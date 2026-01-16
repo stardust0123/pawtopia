@@ -309,20 +309,29 @@ export default function HotelsPage() {
                     </div>
 
                     <div className="flex flex-wrap items-end justify-between gap-4">
-                      <div className="flex flex-wrap gap-3">
-                        <span className="bg-orange-200 px-3 py-1 rounded text-sm">
-                          Google Ratings: {hotel.googleRating}
-                        </span>
-                        <span className="bg-orange-200 px-3 py-1 rounded text-sm">
-                          Pawtopia Ratings: {hotel.pawtopiaRating}
-                        </span>
+                      <div className="flex flex-wrap gap-3 items-center">
+                        <div className="bg-white px-3 py-1 rounded-full shadow text-sm">
+                          ⭐ Google
+                          <span className="font-semibold ml-1">
+                            {hotel.googleRating} / 5
+                          </span>
+                        </div>
+
+                        <div className="bg-purple-100 px-3 py-1 rounded-full shadow text-sm">
+                          🐾 Pawtopia
+                          <span className="font-semibold text-purple-800 ml-1">
+                            {hotel.pawtopiaRating} / 5
+                          </span>
+                        </div>
+
                         <span
-                          className={`px-3 py-1 rounded text-sm font-medium ${hotel.availability ? 'bg-green-300' : 'bg-red-300'
+                          className={`px-3 py-1 rounded-full text-sm font-medium shadow ${hotel.availability ? 'bg-green-200 text-green-900' : 'bg-red-200 text-red-900'
                             }`}
                         >
                           {hotel.availability ? 'Available' : 'Not Available'}
                         </span>
                       </div>
+
 
                       {/* Price */}
                       <div className="text-right">
