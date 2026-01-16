@@ -1,6 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { Icons } from "@/ui/icons";
-
+// t
 const prisma = new PrismaClient();
 
 export default async function ProductsPage() {
@@ -10,7 +9,6 @@ export default async function ProductsPage() {
     <section className="max-w-6xl mx-auto px-6 py-16 text-center space-y-8">
       <h1 className="text-4xl font-bold text-theme">
         <span className="inline-flex items-center gap-2">
-          <Icons.home size={32} />
           Our Products
         </span>
       </h1>
@@ -38,18 +36,17 @@ export default async function ProductsPage() {
             <div className="flex items-center justify-between mt-auto">
               <div className="space-y-1">
                 <p className="font-bold flex items-center gap-1">
-                  <Icons.tag size={14} />
                   ${product.price.toFixed(2)}
                 </p>
 
                 <p className="text-sm text-gray-500 flex items-center gap-1">
-                  <Icons.settings size={14} />
+    
                   {product.category}
                 </p>
               </div>
 
               <button className="flex items-center gap-2 px-3 py-2 rounded-md border hover:bg-gray-100 transition">
-                <Icons.add size={16} />
+      
                 Add
               </button>
             </div>
