@@ -47,8 +47,8 @@ const mockHotels = [
         photos: [
             'https://images.squarespace-cdn.com/content/v1/651b1ae5fa3ff4418caec5aa/1696277311141-C53PARPITRK7QK7PE5FL/Cat+Boarding',
             'https://c8.alamy.com/comp/2PJ8R19/cats-room-interior-in-blue-wall-with-cat-house-and-cat-condo-room-designed-for-cat-3d-rendering-2PJ8R19.jpg',
-            'https://www.shutterstock.com/image-illustration/cats-room-interior-blue-wall-600nw-2284395221.jpg',
-            'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&q=80&w=800',
+            'https://images.unsplash.com/photo-1621976360623-0042236b4a5e?auto=format&fit=crop&q=80',
+            'https://images.unsplash.com/photo-1601758177266-bc599de87707?auto=format&fit=crop&q=80',
         ],
         amenities: ['Clean & Ventilated Rooms', 'Fresh Meals Twice Daily', 'Easy Access Location', 'Budget-Friendly Pricing', 'Gentle Staff Interaction'],
         contact: { phone: '+84 28 5412 3456', email: 'book@purrfectstay.com' },
