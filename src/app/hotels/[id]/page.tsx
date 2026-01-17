@@ -713,7 +713,7 @@ export default function HotelDetailPage({
                 <div className="bg-white p-6 rounded-xl shadow mb-8">
                     <h2 className="text-2xl font-bold mb-4">Location</h2>
 
-                    <div className="h-[450px] rounded-lg overflow-hidden">
+                    <div className="h-[450px] rounded-lg overflow-hidden relative z-0">
                         <MapContainer
                             center={[
                                 hotel.coordinates.lat,
