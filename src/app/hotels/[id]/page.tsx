@@ -9,6 +9,14 @@ import 'leaflet/dist/leaflet.css';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import Link from 'next/link';
+import {
+    Facebook,
+    Twitter,
+    Instagram,
+    Youtube,
+    Music,
+    Globe,
+} from 'lucide-react';
 
 /* =========================
    Fix Leaflet marker icons
@@ -61,52 +69,30 @@ const mockHotels = [
                 type: 'Standard Room',
                 price: 500000,
                 description: 'Cozy room with basic amenities for one cat.',
+                availability: [
+                    { start: '2026-01-20', end: '2026-01-22' },
+                    { start: '2026-02-05', end: '2026-02-10' },
+                    { start: '2026-02-15', end: '2026-02-18' },
+                ],
             },
             {
                 type: 'Luxury Suite',
                 price: 750000,
                 description: 'Spacious suite with extra play area and window view.',
+                availability: [
+                    { start: '2026-01-10', end: '2026-01-15' },
+                    { start: '2026-03-01', end: '2026-03-05' },
+                ],
             },
         ],
         reviews: [
-            {
-                user: 'Jane T.',
-                rating: 5,
-                comment: 'Absolutely amazing service. My cat came back calm and happy.',
-                date: '2024-11-12',
-            },
-            {
-                user: 'Minh Nguyen',
-                rating: 4,
-                comment: 'Clean rooms and friendly staff. Slightly expensive.',
-                date: '2024-10-28',
-            },
-            {
-                user: 'Sarah L.',
-                rating: 5,
-                comment: 'Loved the daily photo updates. Highly recommended.',
-                date: '2024-10-05',
-            },
-            {
-                user: 'Hoang Tran',
-                rating: 4,
-                comment: 'Good location and professional care.',
-                date: '2024-09-18',
-            },
-            {
-                user: 'Alex P.',
-                rating: 5,
-                comment: 'Best cat hotel I have used so far.',
-                date: '2024-08-30',
-            },
-            {
-                user: 'Linh Pham',
-                rating: 4,
-                comment: 'My cat adapted very quickly. Will book again.',
-                date: '2024-08-12',
-            },
+            { user: 'Jane T.', rating: 5, comment: 'Absolutely amazing service. My cat came back calm and happy.', date: '2024-11-12' },
+            { user: 'Minh Nguyen', rating: 4, comment: 'Clean rooms and friendly staff. Slightly expensive.', date: '2024-10-28' },
+            { user: 'Sarah L.', rating: 5, comment: 'Loved the daily photo updates. Highly recommended.', date: '2024-10-05' },
+            { user: 'Hoang Tran', rating: 4, comment: 'Good location and professional care.', date: '2024-09-18' },
+            { user: 'Alex P.', rating: 5, comment: 'Best cat hotel I have used so far.', date: '2024-08-30' },
+            { user: 'Linh Pham', rating: 4, comment: 'My cat adapted very quickly. Will book again.', date: '2024-08-12' },
         ],
-
     },
     {
         id: 2,
@@ -141,19 +127,20 @@ const mockHotels = [
                 type: 'Economy Room',
                 price: 350000,
                 description: 'Affordable room with essential care.',
+                availability: [
+                    { start: '2026-01-01', end: '2026-01-03' },
+                    { start: '2026-02-10', end: '2026-02-15' },
+                ],
             },
             {
                 type: 'Deluxe Room',
                 price: 500000,
                 description: 'Upgraded with more space and toys.',
+                availability: [], // fully available for testing
             },
         ],
         reviews: [
-            {
-                user: 'Budget Cat Owner',
-                rating: 4,
-                comment: 'Great value for money.',
-            },
+            { user: 'Budget Cat Owner', rating: 4, comment: 'Great value for money.' },
         ],
     },
     {
@@ -189,24 +176,23 @@ const mockHotels = [
                 type: 'Playful Suite',
                 price: 600000,
                 description: 'Extra large play zone with tunnels and trees.',
+                availability: [
+                    { start: '2026-02-01', end: '2026-02-05' },
+                    { start: '2026-03-10', end: '2026-03-15' },
+                ],
             },
             {
                 type: 'Standard Play Room',
                 price: 480000,
                 description: 'Cozy room with basic climbing equipment.',
+                availability: [
+                    { start: '2026-01-25', end: '2026-01-28' },
+                ],
             },
         ],
         reviews: [
-            {
-                user: 'Active Cat Parent',
-                rating: 5,
-                comment: 'My cat had the best time ever!',
-            },
-            {
-                user: 'Minh',
-                rating: 4.5,
-                comment: 'Very clean and fun environment.',
-            },
+            { user: 'Active Cat Parent', rating: 5, comment: 'My cat had the best time ever!' },
+            { user: 'Minh', rating: 4.5, comment: 'Very clean and fun environment.' },
         ],
     },
     {
@@ -590,7 +576,6 @@ const renderStars = (rating: number) => {
     );
 };
 
-
 /* =========================
    Page Component
 ========================= */
@@ -602,24 +587,73 @@ export default function HotelDetailPage({
     const resolvedParams = use(params);
     const hotelId = Number(resolvedParams.id);
     const hotel = mockHotels.find((h) => h.id === hotelId);
-
     if (!hotel) {
         notFound();
     }
-
     const [selectedDates, setSelectedDates] = useState({
         start: '',
         end: '',
     });
-
     const [selectedRoom, setSelectedRoom] = useState(hotel.rooms[0].type);
+    const [availabilityStatus, setAvailabilityStatus] = useState<string | null>(null);
+    const [totalPrice, setTotalPrice] = useState<number>(0);
     const [reviews, setReviews] = useState(hotel.reviews);
     const [newReview, setNewReview] = useState({ rating: 5, comment: '' });
 
+    // New function to calculate number of nights
+    const calculateNights = (start: string, end: string): number => {
+        if (!start || !end) return 0;
+        const startDate = new Date(start);
+        const endDate = new Date(end);
+        const diffTime = endDate.getTime() - startDate.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return Math.max(diffDays, 1);  // At least 1 day even if same date
+    };
+
+    // New function to check if period is available (no overlap with booked periods)
+    const isPeriodAvailable = (roomType: string, start: string, end: string): boolean => {
+        if (!start || !end) return false;
+        const selectedRoomData = hotel.rooms.find(r => r.type === roomType);
+        if (!selectedRoomData) return false;
+
+        const requestedStart = new Date(start);
+        const requestedEnd = new Date(end);
+
+        for (const booked of selectedRoomData.availability) {
+            const bookedStart = new Date(booked.start);
+            const bookedEnd = new Date(booked.end);
+
+            // Check for overlap
+            if (requestedStart < bookedEnd && requestedEnd > bookedStart) {
+                return false;
+            }
+        }
+        return true;
+    };
+
+    // Update availability and price when dates or room change
+    React.useEffect(() => {
+        if (selectedDates.start && selectedDates.end) {
+            const nights = calculateNights(selectedDates.start, selectedDates.end);
+            const roomPrice = hotel.rooms.find(r => r.type === selectedRoom)?.price || 0;
+            setTotalPrice(nights * roomPrice);
+
+            const available = isPeriodAvailable(selectedRoom, selectedDates.start, selectedDates.end);
+            setAvailabilityStatus(available ? 'Available' : 'Not Available');
+        } else {
+            setAvailabilityStatus(null);
+            setTotalPrice(0);
+        }
+    }, [selectedDates, selectedRoom]);
+
     const handleBook = () => {
-        alert(
-            `Booked ${selectedRoom} from ${selectedDates.start} to ${selectedDates.end}`
-        );
+        if (availabilityStatus === 'Available') {
+            alert(
+                `Booked ${selectedRoom} from ${selectedDates.start} to ${selectedDates.end} for ${totalPrice.toLocaleString()} ₫`
+            );
+        } else {
+            alert('This period is not available. Please choose different dates.');
+        }
     };
 
     const handleAddReview = () => {
@@ -638,7 +672,6 @@ export default function HotelDetailPage({
                     Pawtopia
                 </span>
             </nav>
-
             <div className="max-w-7xl mx-auto px-4 py-8">
                 {/* Back to hotels */}
                 <div className="mb-6">
@@ -650,17 +683,14 @@ export default function HotelDetailPage({
                         See all hotels
                     </Link>
                 </div>
-
                 {/* Header */}
                 <div className="text-center mb-10">
                     <h1 className="text-4xl font-extrabold mb-2">
                         {hotel.name}
                     </h1>
-
                     <p className="text-lg italic mb-3">
                         {hotel.location}
                     </p>
-
                     {/* Ratings */}
                     <div className="flex justify-center gap-6 text-sm md:text-base">
                         <div className="bg-white px-4 py-2 rounded-full shadow">
@@ -669,7 +699,6 @@ export default function HotelDetailPage({
                                 {hotel.googleRating} / 5
                             </span>
                         </div>
-
                         <div className="bg-purple-100 px-4 py-2 rounded-full shadow">
                             🐾 Pawtopia Rating:{' '}
                             <span className="font-semibold text-purple-800">
@@ -678,7 +707,6 @@ export default function HotelDetailPage({
                         </div>
                     </div>
                 </div>
-
                 {/* Photos */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                     {hotel.photos.map((photo, index) => (
@@ -692,7 +720,6 @@ export default function HotelDetailPage({
                         </div>
                     ))}
                 </div>
-
                 {/* About + Amenities (left column) | Location + Contact (right column) */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
                     {/* Left column: About + Amenities stacked vertically */}
@@ -706,11 +733,10 @@ export default function HotelDetailPage({
                                 {hotel.description}
                             </p>
                         </div>
-
                         {/* Amenities section */}
-                        <div className="bg-white p-8 rounded-xl shadow-md">
-                            <h2 className="text-2xl font-bold mb-6">Amenities</h2>
-                            <ul className="space-y-4 text-gray-700 text-lg">
+                        <div className="bg-white p-6 rounded-xl shadow-md">
+                            <h2 className="text-2xl font-bold mb-4">Amenities</h2>
+                            <ul className="space-y-2 text-gray-700 text-base">
                                 {hotel.amenities.map((amenity, index) => (
                                     <li key={index} className="flex items-start gap-3">
                                         <span className="text-purple-600 text-2xl leading-none">•</span>
@@ -720,7 +746,6 @@ export default function HotelDetailPage({
                             </ul>
                         </div>
                     </div>
-
                     {/* Right column: Location (map) + Contact stacked vertically */}
                     <div className="flex flex-col gap-8 min-h-[680px]">
                         {/* Location / Map */}
@@ -746,94 +771,188 @@ export default function HotelDetailPage({
                                 </MapContainer>
                             </div>
                         </div>
-
                         {/* Contact section – added below map, same column */}
-                        <div className="bg-white p-8 rounded-xl shadow-md">
-                            <h2 className="text-2xl font-bold mb-6">Contact Information</h2>
-                            <div className="space-y-5 text-lg text-gray-700">
+                        {/* Contact section – added below map, same column */}
+                        <div className="bg-white p-6 rounded-xl shadow-md">
+                            <h2 className="text-2xl font-bold mb-4">Contact Information</h2>
+                            <div className="space-y-3 text-base text-gray-700">
                                 <div className="flex items-center gap-3">
-                                    <span className="text-purple-600 text-xl">📍</span>
+                                    <span className="text-purple-600">
+                                        <Globe size={20} />
+                                    </span>
                                     <span>{hotel.location}</span>
                                 </div>
                                 <div className="flex items-center gap-3">
-                                    <span className="text-purple-600 text-xl">📞</span>
+                                    <span className="text-purple-600">
+                                        📞
+                                    </span>
                                     <span>{hotel.contact.phone}</span>
                                 </div>
                                 <div className="flex items-center gap-3">
-                                    <span className="text-purple-600 text-xl">✉️</span>
+                                    <span className="text-purple-600">
+                                        ✉️
+                                    </span>
                                     <span>{hotel.contact.email}</span>
                                 </div>
-
-                                {/* Social media links (generic placeholders) */}
-                                <div className="pt-4 border-t border-gray-200">
-                                    <h3 className="text-lg font-semibold mb-3">Follow us</h3>
-                                    <div className="flex gap-6">
-                                        <a href="#" className="text-blue-600 hover:text-blue-800 text-2xl">𝕏</a>
-                                        <a href="#" className="text-blue-700 hover:text-blue-900 text-2xl">f</a>
-                                        <a href="#" className="text-pink-600 hover:text-pink-800 text-2xl">📷</a>
-                                        <a href="#" className="text-red-600 hover:text-red-800 text-2xl">▶️</a>
-                                        <a href="#" className="text-green-600 hover:text-green-800 text-2xl">💬</a>
+                                {/* Hotel website */}
+                                <div className="flex items-center gap-3">
+                                    <span className="text-purple-600">
+                                        <Globe size={20} />
+                                    </span>
+                                    <a
+                                        href="https://www.example-hotel-website.com"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-blue-600 hover:underline"
+                                    >
+                                        www.example-hotel-website.com
+                                    </a>
+                                </div>
+                                {/* Social media links */}
+                                <div className="pt-6 border-t border-gray-200">
+                                    <h3 className="text-lg font-semibold mb-4">Follow us</h3>
+                                    <div className="flex gap-6 items-center">
+                                        <a
+                                            href="https://www.facebook.com"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-blue-600 hover:text-blue-800"
+                                            aria-label="Facebook"
+                                        >
+                                            <Facebook size={28} />
+                                        </a>
+                                        <a
+                                            href="https://www.x.com"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-sky-500 hover:text-sky-700"
+                                            aria-label="Twitter / X"
+                                        >
+                                            <Twitter size={28} />
+                                        </a>
+                                        <a
+                                            href="https://www.instagram.com"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-pink-600 hover:text-pink-800"
+                                            aria-label="Instagram"
+                                        >
+                                            <Instagram size={28} />
+                                        </a>
+                                        <a
+                                            href="https://www.tiktok.com"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-gray-800 hover:text-black"
+                                            aria-label="TikTok"
+                                        >
+                                            <Music size={28} />
+                                        </a>
+                                        <a
+                                            href="https://www.youtube.com"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-red-600 hover:text-red-800"
+                                            aria-label="YouTube"
+                                        >
+                                            <Youtube size={28} />
+                                        </a>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-
                 {/* Booking */}
-                <div className="bg-white p-6 rounded-xl shadow mb-8">
-                    <h2 className="text-2xl font-bold mb-4">Book Your Stay</h2>
-
-                    <input
-                        type="date"
-                        className="border p-2 w-full mb-4"
-                        value={selectedDates.start}
-                        onChange={(e) =>
-                            setSelectedDates({
-                                ...selectedDates,
-                                start: e.target.value,
-                            })
-                        }
-                    />
-
-                    <input
-                        type="date"
-                        className="border p-2 w-full mb-4"
-                        value={selectedDates.end}
-                        onChange={(e) =>
-                            setSelectedDates({
-                                ...selectedDates,
-                                end: e.target.value,
-                            })
-                        }
-                    />
-
-                    <select
-                        className="border p-2 w-full mb-4"
-                        value={selectedRoom}
-                        onChange={(e) => setSelectedRoom(e.target.value)}
-                    >
-                        {hotel.rooms.map((room) => (
-                            <option key={room.type} value={room.type}>
-                                {room.type} — {room.price.toLocaleString()} ₫
-                            </option>
-                        ))}
-                    </select>
-
+                <div className="bg-white p-8 rounded-xl shadow-md mb-12">
+                    <h2 className="text-3xl font-extrabold text-blue-950 mb-8 text-center">
+                        Book Your Stay
+                    </h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        {/* Start Date */}
+                        <div>
+                            <label className="block text-gray-700 font-semibold mb-2">Start Date</label>
+                            <input
+                                type="date"
+                                className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                value={selectedDates.start}
+                                onChange={(e) =>
+                                    setSelectedDates({
+                                        ...selectedDates,
+                                        start: e.target.value,
+                                    })
+                                }
+                            />
+                        </div>
+                        {/* End Date */}
+                        <div>
+                            <label className="block text-gray-700 font-semibold mb-2">End Date</label>
+                            <input
+                                type="date"
+                                className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                value={selectedDates.end}
+                                onChange={(e) =>
+                                    setSelectedDates({
+                                        ...selectedDates,
+                                        end: e.target.value,
+                                    })
+                                }
+                                min={selectedDates.start}  // Prevent end < start
+                            />
+                        </div>
+                    </div>
+                    {/* Room Type */}
+                    <div className="mb-8">
+                        <label className="block text-gray-700 font-semibold mb-2">Room Type</label>
+                        <select
+                            className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            value={selectedRoom}
+                            onChange={(e) => setSelectedRoom(e.target.value)}
+                        >
+                            {hotel.rooms.map((room) => (
+                                <option key={room.type} value={room.type}>
+                                    {room.type} — {room.price.toLocaleString()} ₫ / night
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                    {/* Availability Status + Total Price */}
+                    {availabilityStatus && (
+                        <div className="mb-8 p-6 bg-gray-50 rounded-lg border border-gray-200">
+                            <div className="flex justify-between items-center mb-2">
+                                <span className="font-semibold text-lg">Availability:</span>
+                                <span className={`font-bold text-lg ${availabilityStatus === 'Available' ? 'text-green-600' : 'text-red-600'}`}>
+                                    {availabilityStatus}
+                                </span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                                <span className="font-semibold text-lg">Total Price:</span>
+                                <span className="font-bold text-xl text-green-700">
+                                    {totalPrice.toLocaleString()} ₫
+                                </span>
+                            </div>
+                            <p className="text-sm text-gray-500 mt-2">
+                                For {calculateNights(selectedDates.start, selectedDates.end)} night(s)
+                            </p>
+                        </div>
+                    )}
+                    {/* Book Button */}
                     <button
                         onClick={handleBook}
-                        className="bg-purple-500 text-white w-full py-3 rounded"
+                        disabled={availabilityStatus !== 'Available'}
+                        className={`w-full py-4 rounded-lg font-semibold text-white transition-colors ${availabilityStatus === 'Available'
+                            ? 'bg-purple-500 hover:bg-purple-600'
+                            : 'bg-gray-400 cursor-not-allowed'
+                            }`}
                     >
                         Book Now
                     </button>
                 </div>
-
                 {/* Reviews */}
                 <div className="bg-white p-6 rounded-xl shadow">
                     <h2 className="text-2xl font-bold mb-6">
                         Reviews ({reviews.length})
                     </h2>
-
                     <div className="space-y-6">
                         {reviews.map((review, index) => (
                             <div key={index} className="border-b pb-4">
@@ -845,20 +964,16 @@ export default function HotelDetailPage({
                                         {new Date(review.date).toLocaleDateString('en-GB')}
                                     </span>
                                 </div>
-
                                 {renderStars(review.rating)}
-
                                 <p className="mt-2 text-gray-700">
                                     {review.comment}
                                 </p>
                             </div>
                         ))}
                     </div>
-
                     {/* Add Review */}
                     <div className="mt-8">
                         <h3 className="font-semibold mb-2">Write a review</h3>
-
                         <select
                             className="border p-2 w-full mb-3"
                             value={newReview.rating}
@@ -875,7 +990,6 @@ export default function HotelDetailPage({
                                 </option>
                             ))}
                         </select>
-
                         <textarea
                             className="border p-2 w-full mb-3"
                             placeholder="Share your experience..."
@@ -887,7 +1001,6 @@ export default function HotelDetailPage({
                                 })
                             }
                         />
-
                         <button
                             onClick={() => {
                                 setReviews([
@@ -907,7 +1020,6 @@ export default function HotelDetailPage({
                         </button>
                     </div>
                 </div>
-
             </div>
         </div>
     );
