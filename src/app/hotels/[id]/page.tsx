@@ -699,48 +699,43 @@ export default function HotelDetailPage({
                     <p>{hotel.description}</p>
                 </div>
 
-                {/* Amenities */}
-                <div className="bg-white p-6 rounded-xl shadow mb-8">
-                    <h2 className="text-2xl font-bold mb-4">Amenities</h2>
-                    <ul className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                        {hotel.amenities.map((amenity, index) => (
-                            <li key={index}>• {amenity}</li>
-                        ))}
-                    </ul>
-                </div>
+                {/* Amenities + Location side-by-side – taller layout */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
+                    {/* Left: Amenities – now single vertical column */}
+                    <div className="bg-white p-8 rounded-xl shadow-md min-h-[580px] flex flex-col">
+                        <h2 className="text-2xl font-bold mb-6">Amenities</h2>
+                        <ul className="space-y-4 flex-grow text-gray-700 text-lg">
+                            {hotel.amenities.map((amenity, index) => (
+                                <li key={index} className="flex items-start gap-3">
+                                    <span className="text-purple-600 text-2xl leading-none">•</span>
+                                    <span>{amenity}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
 
-                {/* Location */}
-                <div className="bg-white p-6 rounded-xl shadow mb-8">
-                    <h2 className="text-2xl font-bold mb-4">Location</h2>
-
-                    <div className="h-[450px] rounded-lg overflow-hidden relative z-0">
-                        <MapContainer
-                            center={[
-                                hotel.coordinates.lat,
-                                hotel.coordinates.lng,
-                            ]}
-                            zoom={15}
-                            scrollWheelZoom={false}
-                            className="h-full w-full"
-                        >
-                            <TileLayer
-                                attribution="&copy; OpenStreetMap contributors"
-                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                            />
-
-                            <Marker
-                                position={[
-                                    hotel.coordinates.lat,
-                                    hotel.coordinates.lng,
-                                ]}
+                    {/* Right: Location / Map – taller map */}
+                    <div className="bg-white p-8 rounded-xl shadow-md min-h-[580px] flex flex-col">
+                        <h2 className="text-2xl font-bold mb-6">Location</h2>
+                        <div className="flex-grow rounded-lg overflow-hidden border border-gray-200">
+                            <MapContainer
+                                center={[hotel.coordinates.lat, hotel.coordinates.lng]}
+                                zoom={15}
+                                scrollWheelZoom={false}
+                                className="h-full w-full"
                             >
-                                <Popup>
-                                    <strong>{hotel.name}</strong>
-                                    <br />
-                                    {hotel.location}
-                                </Popup>
-                            </Marker>
-                        </MapContainer>
+                                <TileLayer
+                                    attribution='© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                />
+                                <Marker position={[hotel.coordinates.lat, hotel.coordinates.lng]}>
+                                    <Popup>
+                                        <strong>{hotel.name}</strong><br />
+                                        {hotel.location}
+                                    </Popup>
+                                </Marker>
+                            </MapContainer>
+                        </div>
                     </div>
                 </div>
 
