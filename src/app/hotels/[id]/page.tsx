@@ -693,48 +693,89 @@ export default function HotelDetailPage({
                     ))}
                 </div>
 
-                {/* Description */}
-                <div className="bg-white p-6 rounded-xl shadow mb-8">
-                    <h2 className="text-2xl font-bold mb-4">About</h2>
-                    <p>{hotel.description}</p>
-                </div>
+                {/* About + Amenities (left column) | Location + Contact (right column) */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+                    {/* Left column: About + Amenities stacked vertically */}
+                    <div className="flex flex-col gap-8 min-h-[680px]">
+                        {/* About section */}
+                        <div className="bg-white p-8 rounded-xl shadow-md flex-grow">
+                            <h2 className="text-3xl font-extrabold text-blue-950 mb-6">
+                                About {hotel.name}
+                            </h2>
+                            <p className="text-gray-700 leading-relaxed text-lg">
+                                {hotel.description}
+                            </p>
+                        </div>
 
-                {/* Amenities + Location side-by-side – taller layout */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
-                    {/* Left: Amenities – now single vertical column */}
-                    <div className="bg-white p-8 rounded-xl shadow-md min-h-[580px] flex flex-col">
-                        <h2 className="text-2xl font-bold mb-6">Amenities</h2>
-                        <ul className="space-y-4 flex-grow text-gray-700 text-lg">
-                            {hotel.amenities.map((amenity, index) => (
-                                <li key={index} className="flex items-start gap-3">
-                                    <span className="text-purple-600 text-2xl leading-none">•</span>
-                                    <span>{amenity}</span>
-                                </li>
-                            ))}
-                        </ul>
+                        {/* Amenities section */}
+                        <div className="bg-white p-8 rounded-xl shadow-md">
+                            <h2 className="text-2xl font-bold mb-6">Amenities</h2>
+                            <ul className="space-y-4 text-gray-700 text-lg">
+                                {hotel.amenities.map((amenity, index) => (
+                                    <li key={index} className="flex items-start gap-3">
+                                        <span className="text-purple-600 text-2xl leading-none">•</span>
+                                        <span>{amenity}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
                     </div>
 
-                    {/* Right: Location / Map – taller map */}
-                    <div className="bg-white p-8 rounded-xl shadow-md min-h-[580px] flex flex-col">
-                        <h2 className="text-2xl font-bold mb-6">Location</h2>
-                        <div className="flex-grow rounded-lg overflow-hidden border border-gray-200">
-                            <MapContainer
-                                center={[hotel.coordinates.lat, hotel.coordinates.lng]}
-                                zoom={15}
-                                scrollWheelZoom={false}
-                                className="h-full w-full"
-                            >
-                                <TileLayer
-                                    attribution='© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                                />
-                                <Marker position={[hotel.coordinates.lat, hotel.coordinates.lng]}>
-                                    <Popup>
-                                        <strong>{hotel.name}</strong><br />
-                                        {hotel.location}
-                                    </Popup>
-                                </Marker>
-                            </MapContainer>
+                    {/* Right column: Location (map) + Contact stacked vertically */}
+                    <div className="flex flex-col gap-8 min-h-[680px]">
+                        {/* Location / Map */}
+                        <div className="bg-white p-8 rounded-xl shadow-md flex-grow">
+                            <h2 className="text-3xl font-extrabold text-blue-950 mb-6">Location</h2>
+                            <div className="h-[500px] rounded-lg overflow-hidden border border-gray-200 shadow-inner relative z-0">
+                                <MapContainer
+                                    center={[hotel.coordinates.lat, hotel.coordinates.lng]}
+                                    zoom={15}
+                                    scrollWheelZoom={false}
+                                    className="h-full w-full"
+                                >
+                                    <TileLayer
+                                        attribution='© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                    />
+                                    <Marker position={[hotel.coordinates.lat, hotel.coordinates.lng]}>
+                                        <Popup>
+                                            <strong>{hotel.name}</strong><br />
+                                            {hotel.location}
+                                        </Popup>
+                                    </Marker>
+                                </MapContainer>
+                            </div>
+                        </div>
+
+                        {/* Contact section – added below map, same column */}
+                        <div className="bg-white p-8 rounded-xl shadow-md">
+                            <h2 className="text-2xl font-bold mb-6">Contact Information</h2>
+                            <div className="space-y-5 text-lg text-gray-700">
+                                <div className="flex items-center gap-3">
+                                    <span className="text-purple-600 text-xl">📍</span>
+                                    <span>{hotel.location}</span>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <span className="text-purple-600 text-xl">📞</span>
+                                    <span>{hotel.contact.phone}</span>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <span className="text-purple-600 text-xl">✉️</span>
+                                    <span>{hotel.contact.email}</span>
+                                </div>
+
+                                {/* Social media links (generic placeholders) */}
+                                <div className="pt-4 border-t border-gray-200">
+                                    <h3 className="text-lg font-semibold mb-3">Follow us</h3>
+                                    <div className="flex gap-6">
+                                        <a href="#" className="text-blue-600 hover:text-blue-800 text-2xl">𝕏</a>
+                                        <a href="#" className="text-blue-700 hover:text-blue-900 text-2xl">f</a>
+                                        <a href="#" className="text-pink-600 hover:text-pink-800 text-2xl">📷</a>
+                                        <a href="#" className="text-red-600 hover:text-red-800 text-2xl">▶️</a>
+                                        <a href="#" className="text-green-600 hover:text-green-800 text-2xl">💬</a>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
