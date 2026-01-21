@@ -37,6 +37,12 @@ export default function ServicesPage() {
       emoji: "💊",
       color: "bg-[var(--color-pharmacy)]",
     },
+    {
+      name: "Test",
+      description: "Find trusted pet pharmacies for prescriptions, supplements, and medical care.",
+      href: "/test",
+      color: "bg-[var(--color-pharmacy)]",
+    },
   ];
 
   return (
