@@ -177,12 +177,7 @@ export default function HotelsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Navigation Bar */}
-      <nav className="bg-purple-300 p-4 text-center shadow-md">
-        <span className="text-xl font-semibold text-purple-900">Pawtopia</span>
-      </nav>
-
-      <div className="max-w-7xl mx-auto px-4 py-8 flex flex-col lg:flex-row gap-8">
+      <div className="max-w-7xl mx-auto px-4 py-20 flex flex-col lg:flex-row gap-8">
         {/* Left Filters Panel */}
         <aside className="lg:w-96 xl:w-[400px] bg-white rounded-xl shadow-lg p-6 space-y-6">
           <input

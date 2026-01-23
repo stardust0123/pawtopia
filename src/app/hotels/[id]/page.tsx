@@ -9,6 +9,7 @@ import 'leaflet/dist/leaflet.css';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';  // ← add this line
 import {
     Facebook,
     Twitter,
@@ -587,6 +588,7 @@ export default function HotelDetailPage({
     const resolvedParams = use(params);
     const hotelId = Number(resolvedParams.id);
     const hotel = mockHotels.find((h) => h.id === hotelId);
+    const router = useRouter();  // ← add this line
     if (!hotel) {
         notFound();
     }
@@ -666,13 +668,7 @@ export default function HotelDetailPage({
 
     return (
         <div className="min-h-screen bg-gray-50">
-            {/* Navigation */}
-            <nav className="bg-purple-300 p-4 text-center shadow">
-                <span className="text-xl font-semibold text-purple-900">
-                    Pawtopia
-                </span>
-            </nav>
-            <div className="max-w-7xl mx-auto px-4 py-8">
+            <div className="max-w-7xl mx-auto px-4 py-20">
                 {/* Back to hotels */}
                 <div className="mb-6">
                     <Link
@@ -938,7 +934,23 @@ export default function HotelDetailPage({
                     )}
                     {/* Book Button */}
                     <button
-                        onClick={handleBook}
+                        onClick={() => {
+                            if (availabilityStatus !== 'Available') {
+                                alert('This period is not available. Please choose different dates.');
+                                return;
+                            }
+
+                            // Build URL with query params
+                            const query = new URLSearchParams({
+                                start: selectedDates.start,
+                                end: selectedDates.end,
+                                room: selectedRoom,
+                                nights: calculateNights(selectedDates.start, selectedDates.end).toString(),
+                                total: totalPrice.toString(),
+                            }).toString();
+
+                            router.push(`/hotels/${hotel.id}/book?${query}`);
+                        }}
                         disabled={availabilityStatus !== 'Available'}
                         className={`w-full py-4 rounded-lg font-semibold text-white transition-colors ${availabilityStatus === 'Available'
                             ? 'bg-purple-500 hover:bg-purple-600'
