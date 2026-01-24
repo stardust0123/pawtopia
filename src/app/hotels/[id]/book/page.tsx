@@ -4,7 +4,7 @@
 import React, { useState } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { mockHotels } from '../../mockHotels'; // ← we'll extract this later
+import { mockHotels } from '@/data/mockHotels';
 
 export default function BookHotelPage() {
     const params = useParams();
@@ -99,7 +99,7 @@ export default function BookHotelPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="min-h-screen bg-gray-50 py-12 pt-4 sm:px-6 lg:px-8">
             <div className="max-w-4xl mx-auto">
                 {/* Header */}
                 <div className="text-center mb-12">
