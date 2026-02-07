@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import ProductCard from "@/components/product-card";
 
 type Product = {
@@ -19,6 +19,8 @@ export default function ProductsClient({
 }) {
   const [minPrice, setMinPrice] = useState(0);
   const [maxPrice, setMaxPrice] = useState(1000);
+  const [query, setQuery] = useState("");
+  const [sort, setSort] = useState<"relevant" | "price-asc" | "price-desc">("relevant");
 
   return (
     <div className="flex gap-8 px-6 py-8 h-screen">
@@ -99,10 +101,53 @@ export default function ProductsClient({
 
       {/* Product grid */}
           <section className="flex-1 overflow-y-auto">
+            {/* Top controls */}
+            <div className="flex items-center justify-between gap-4 p-4">
+              <div className="flex items-center gap-3">
+                <input
+                  type="search"
+                  placeholder="Search products"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  className="px-3 py-2 border rounded-md w-72 bg-white"
+                />
+                <div className="text-sm text-gray-600 pl-7">Showing <span className="font-semibold">{products.length}</span> products</div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <label className="text-sm text-gray-600">Sort:</label>
+                <select value={sort} onChange={(e) => setSort(e.target.value as any)} className="px-3 py-2 border rounded-md bg-white text-sm">
+                  <option value="relevant">Relevance</option>
+                  <option value="price-asc">Price: Low to High</option>
+                  <option value="price-desc">Price: High to Low</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Product grid */}
             <div className="grid gap-6 p-4" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(350px, 1fr))" }}>
-              {products.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
+              {useMemo(() => {
+                const filtered = products.filter((p) => {
+                  const matchesQuery = p.name.toLowerCase().includes(query.toLowerCase());
+                  const withinPrice = p.price >= minPrice && p.price <= maxPrice;
+                  return matchesQuery && withinPrice;
+                });
+
+                if (sort === "price-asc") filtered.sort((a, b) => a.price - b.price);
+                if (sort === "price-desc") filtered.sort((a, b) => b.price - a.price);
+
+                if (filtered.length === 0) {
+                  return (
+                    <div className="col-span-full p-8 text-center text-gray-600">
+                      No products found — try adjusting filters or search.
+                    </div>
+                  );
+                }
+
+                return filtered.map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ));
+              }, [products, query, minPrice, maxPrice, sort])}
             </div>
           </section>
     </div>

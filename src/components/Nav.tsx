@@ -18,8 +18,8 @@ export default function Nav() {
     }`;
 
   return (
-    <header className="bg-background shadow-md fixed w-full top-0 left-0 z-50">
-      <div className="container mx-auto px-4 py-3 flex justify-between items-center">
+    <header className="bg-background shadow-md fixed w-full top-0 left-0 z-50 h-20">
+      <div className="container mx-auto px-4 h-full flex justify-between items-center">
         {/* Logo + Text */}
         <Link href="/" className="flex items-center space-x-2">
           <Image
@@ -33,7 +33,7 @@ export default function Nav() {
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex space-x-2">
+        <nav className="md:flex space-x-2">
           <Link href="/" className={linkClass("/")}>
             Home
           </Link>

@@ -18,10 +18,20 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} min-h-screen flex flex-col`}>
+      <body className={`${inter.className} min-h-screen`}>
+
+        {/* FIXED HEADER */}
         <Nav />
-        <main className="flex-1 container mx-auto px-4 py-8">{children}</main>
+
+        {/* THIS DIV PUSHES ALL CONTENT BELOW THE HEADER */}
+        <div className="pt-24">
+          <main className="container mx-auto px-4 py-8">
+            {children}
+          </main>
+        </div>
+
         <Footer />
+
       </body>
     </html>
   );
