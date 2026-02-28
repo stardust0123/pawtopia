@@ -14,7 +14,7 @@ export async function GET() {
                 pawtopiaRating: true,
                 availability: true,
                 price: true,
-                photo: true,
+                photos: true,     // ← add this
             },
             orderBy: { id: 'asc' },
         });

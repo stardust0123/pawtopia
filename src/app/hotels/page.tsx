@@ -168,7 +168,7 @@ export default function HotelsPage() {
                   {/* Photo */}
                   <div className="md:w-1/3 bg-yellow-100 relative min-h-[260px] md:min-h-full">
                     <Image
-                      src={hotel.photo || '/placeholder-hotel.jpg'} // fallback if null
+                      src={hotel.photos?.[0] || '/placeholder-hotel.jpg'}  // use first photo from array
                       alt={hotel.name}
                       fill
                       className="object-cover"
