@@ -15,18 +15,19 @@ model Product {
   imageUrl    String
   category    String
   createdAt   DateTime @default(now())
+  stock       Int?
 }
 
 model Hotel {
-  id             Int       @id @default(autoincrement())
+  id             Int      @id @default(autoincrement())
   name           String
   location       String
   description    String
-  googleRating   Float     @default(0)
-  pawtopiaRating Float     @default(0)
-  availability   Boolean   @default(true)
-  price          Int       // base / starting price in VND
-  photos         String[]  // ← array of photo URLs (can be empty)
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  googleRating   Float    @default(0)
+  pawtopiaRating Float    @default(0)
+  availability   Boolean  @default(true)
+  price          Int
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  photos         String[]
 }

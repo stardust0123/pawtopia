@@ -15,15 +15,19 @@ export default function BookHotelPage() {
     const hotel = mockHotels.find((h) => h.id === hotelId);
 
     if (!hotel) {
-        return <div className="min-h-screen flex items-center justify-center">Hotel not found</div>;
+        return (
+            <div className="min-h-screen flex items-center justify-center text-red-600">
+                Hotel not found
+            </div>
+        );
     }
 
-    // Get pre-filled data from URL (passed from detail page)
+    // Pre-filled data from URL (passed from detail page)
     const startDate = searchParams.get('start') || '';
     const endDate = searchParams.get('end') || '';
     const roomType = searchParams.get('room') || hotel.rooms[0]?.type || '';
     const nights = searchParams.get('nights') ? Number(searchParams.get('nights')) : 0;
-    const totalPrice = searchParams.get('total') ? Number(searchParams.get('total')) : 0;
+    const baseTotalPrice = searchParams.get('total') ? Number(searchParams.get('total')) : 0;
 
     const selectedRoom = hotel.rooms.find((r) => r.type === roomType) || hotel.rooms[0];
 
@@ -31,13 +35,19 @@ export default function BookHotelPage() {
         fullName: '',
         email: '',
         phone: '',
+        numCats: '1', // new field - default to 1 cat
         specialRequests: '',
         agreeToTerms: false,
     });
 
     const [submitted, setSubmitted] = useState(false);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    // Calculate final total based on number of cats
+    const finalTotalPrice = baseTotalPrice * Number(formData.numCats);
+
+    const handleChange = (
+        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    ) => {
         const { name, value, type, checked } = e.target as any;
         setFormData((prev) => ({
             ...prev,
@@ -47,7 +57,14 @@ export default function BookHotelPage() {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!formData.fullName || !formData.email || !formData.phone || !formData.agreeToTerms) {
+
+        if (
+            !formData.fullName ||
+            !formData.email ||
+            !formData.phone ||
+            !formData.numCats ||
+            !formData.agreeToTerms
+        ) {
             alert('Please fill in all required fields and agree to the terms.');
             return;
         }
@@ -57,8 +74,9 @@ export default function BookHotelPage() {
             `Booking confirmed!\n\n` +
             `Hotel: ${hotel.name}\n` +
             `Room: ${roomType}\n` +
+            `Number of cats: ${formData.numCats}\n` +
             `Dates: ${startDate} → ${endDate} (${nights} night${nights !== 1 ? 's' : ''})\n` +
-            `Total: ${totalPrice.toLocaleString('vi-VN')} ₫\n` +
+            `Total: ${finalTotalPrice.toLocaleString('vi-VN')} ₫\n` +
             `Guest: ${formData.fullName} (${formData.email}, ${formData.phone})\n\n` +
             `We will send a confirmation to your email shortly. Thank you!`
         );
@@ -75,7 +93,8 @@ export default function BookHotelPage() {
                     </div>
                     <h1 className="text-3xl font-bold text-green-700 mb-4">Booking Confirmed!</h1>
                     <p className="text-gray-600 mb-8">
-                        Thank you, {formData.fullName}! Your booking request has been received.
+                        Thank you, {formData.fullName}! Your booking request for {formData.numCats} cat
+                        {Number(formData.numCats) > 1 ? 's' : ''} has been received.
                         <br />
                         We will contact you shortly to confirm.
                     </p>
@@ -105,7 +124,7 @@ export default function BookHotelPage() {
                 <div className="text-center mb-12">
                     <h1 className="text-4xl font-extrabold text-blue-950 mb-3">Confirm Your Booking</h1>
                     <p className="text-xl text-gray-600">
-                        {hotel.name} • {roomType}
+                        {hotel.name} • {roomType} • {formData.numCats} cat{Number(formData.numCats) > 1 ? 's' : ''}
                     </p>
                 </div>
 
@@ -118,12 +137,18 @@ export default function BookHotelPage() {
                             <p className="text-xl font-semibold">
                                 {startDate} → {endDate}
                             </p>
-                            <p className="text-gray-500 mt-1">{nights} night{nights !== 1 ? 's' : ''}</p>
+                            <p className="text-gray-500 mt-1">
+                                {nights} night{nights !== 1 ? 's' : ''} • {formData.numCats} cat
+                                {Number(formData.numCats) > 1 ? 's' : ''}
+                            </p>
                         </div>
                         <div className="text-right">
                             <p className="text-gray-600 mb-1">Total Price</p>
                             <p className="text-3xl font-bold text-green-700">
-                                {totalPrice.toLocaleString('vi-VN')} ₫
+                                {finalTotalPrice.toLocaleString('vi-VN')} ₫
+                            </p>
+                            <p className="text-sm text-gray-500 mt-1">
+                                (Base: {baseTotalPrice.toLocaleString('vi-VN')} ₫ × {formData.numCats} cats)
                             </p>
                         </div>
                     </div>
@@ -165,30 +190,53 @@ export default function BookHotelPage() {
                         </div>
                     </div>
 
-                    <div className="mb-6">
-                        <label className="block text-gray-700 font-medium mb-2">
-                            Phone Number <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                            type="tel"
-                            name="phone"
-                            value={formData.phone}
-                            onChange={handleChange}
-                            required
-                            className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                            placeholder="+84 123 456 789"
-                        />
+                    <div className="grid md:grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <label className="block text-gray-700 font-medium mb-2">
+                                Phone Number <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                type="tel"
+                                name="phone"
+                                value={formData.phone}
+                                onChange={handleChange}
+                                required
+                                className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                placeholder="+84 123 456 789"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-gray-700 font-medium mb-2">
+                                Number of Cats <span className="text-red-500">*</span>
+                            </label>
+                            <select
+                                name="numCats"
+                                value={formData.numCats}
+                                onChange={handleChange}
+                                required
+                                className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white"
+                            >
+                                <option value="1">1 cat</option>
+                                <option value="2">2 cats</option>
+                                <option value="3">3 cats</option>
+                                <option value="4">4 cats</option>
+                                <option value="5">5 cats</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div className="mb-8">
-                        <label className="block text-gray-700 font-medium mb-2">Special Requests (optional)</label>
+                        <label className="block text-gray-700 font-medium mb-2">
+                            Special Requests (optional)
+                        </label>
                         <textarea
                             name="specialRequests"
                             value={formData.specialRequests}
                             onChange={handleChange}
                             rows={4}
                             className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                            placeholder="e.g. late check-in, dietary needs, allergies, etc."
+                            placeholder="e.g. late check-in, dietary needs, allergies, separate rooms for cats, etc."
                         />
                     </div>
 
