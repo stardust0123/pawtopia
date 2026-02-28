@@ -18,12 +18,20 @@ model Product {
 }
 
 model Hotel {
-  id            Int      @id @default(autoincrement())
-  name          String
-  location      String
-  pricePerNight Float
-  description   String
-  imageUrl      String
-  contact       String?
-  createdAt     DateTime @default(now())
+  id             Int      @id @default(autoincrement())
+  name           String
+  location       String
+  description    String
+  googleRating   Float    @default(0)
+  pawtopiaRating Float    @default(0)
+  availability   Boolean  @default(true)
+  price          Int      // base / starting price in VND
+  photo          String?  // main photo URL for listing page (we take first photo from mock)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Optional future relations (you can add later)
+  // photos    HotelPhoto[]
+  // rooms     Room[]
+  // reviews   Review[]
 }

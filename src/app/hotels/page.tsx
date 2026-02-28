@@ -1,13 +1,13 @@
 // pawtopia\src\app\hotels\page.tsx
-
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { mockHotels } from '@/data/mockHotels';  // @ = src/
 
 export default function HotelsPage() {
+  const [hotels, setHotels] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
     search: '',
     city: '',
@@ -19,49 +19,54 @@ export default function HotelsPage() {
     available: false,
   });
 
-  const [filteredHotels, setFilteredHotels] = useState(mockHotels);
+  // Fetch hotels from API route (or directly from server component in future)
+  useEffect(() => {
+    async function fetchHotels() {
+      try {
+        const res = await fetch('/api/hotels');
+        const data = await res.json();
+        setHotels(data);
+      } catch (err) {
+        console.error('Failed to fetch hotels:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchHotels();
+  }, []);
+
+  // Simple client-side filter (you can move to server later)
+  const filteredHotels = hotels.filter((h) => {
+    const matchesSearch =
+      !filters.search.trim() ||
+      h.name.toLowerCase().includes(filters.search.toLowerCase().trim()) ||
+      h.location.toLowerCase().includes(filters.search.toLowerCase().trim()) ||
+      h.description.toLowerCase().includes(filters.search.toLowerCase().trim());
+
+    const matchesCity = !filters.city || h.location.includes(filters.city);
+
+    const matchesRating = filters.minRating === 0 || h.pawtopiaRating >= filters.minRating;
+
+    const matchesPrice =
+      (!filters.minPrice || h.price >= Number(filters.minPrice)) &&
+      (!filters.maxPrice || h.price <= Number(filters.maxPrice));
+
+    const matchesAvailability = !filters.available || h.availability;
+
+    return matchesSearch && matchesCity && matchesRating && matchesPrice && matchesAvailability;
+  });
 
   const applyFilters = () => {
-    let filtered = mockHotels;
-
-    if (filters.search.trim()) {
-      const searchLower = filters.search.toLowerCase().trim();
-      filtered = filtered.filter(
-        (h) =>
-          h.name.toLowerCase().includes(searchLower) ||
-          h.location.toLowerCase().includes(searchLower) ||
-          h.description.toLowerCase().includes(searchLower)
-      );
-    }
-
-    if (filters.city) {
-      filtered = filtered.filter((h) => h.location.includes(filters.city));
-    }
-
-    if (filters.minRating > 0) {
-      filtered = filtered.filter((h) => h.googleRating >= filters.minRating);
-    }
-
-    if (filters.minPrice !== '') {
-      const minP = Number(filters.minPrice);
-      if (!isNaN(minP)) {
-        filtered = filtered.filter((h) => h.price >= minP);
-      }
-    }
-
-    if (filters.maxPrice !== '') {
-      const maxP = Number(filters.maxPrice);
-      if (!isNaN(maxP)) {
-        filtered = filtered.filter((h) => h.price <= maxP);
-      }
-    }
-
-    if (filters.available || (filters.startDate && filters.endDate)) {
-      filtered = filtered.filter((h) => h.availability === true);
-    }
-
-    setFilteredHotels(filtered);
+    // Just re-render — filters already applied via state
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-xl">Loading hotels...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -75,7 +80,6 @@ export default function HotelsPage() {
             value={filters.search}
             onChange={(e) => setFilters({ ...filters, search: e.target.value })}
           />
-
           <select
             className="w-full p-3 border border-gray-300 rounded-lg bg-green-50"
             value={filters.city}
@@ -86,7 +90,6 @@ export default function HotelsPage() {
             <option value="Hanoi">Hanoi</option>
             <option value="Da Nang">Da Nang</option>
           </select>
-
           <select
             className="w-full p-3 border border-gray-300 rounded-lg bg-green-50"
             value={filters.minRating}
@@ -98,7 +101,6 @@ export default function HotelsPage() {
             <option value={3.5}>3.5+</option>
             <option value={3}>3+</option>
           </select>
-
           <div className="grid grid-cols-2 gap-4">
             <input
               type="number"
@@ -115,7 +117,6 @@ export default function HotelsPage() {
               onChange={(e) => setFilters({ ...filters, maxPrice: e.target.value })}
             />
           </div>
-
           <div className="grid grid-cols-2 gap-4">
             <input
               type="date"
@@ -130,7 +131,6 @@ export default function HotelsPage() {
               onChange={(e) => setFilters({ ...filters, endDate: e.target.value })}
             />
           </div>
-
           <div className="flex items-center gap-3 bg-pink-50 p-3 rounded-lg">
             <input
               type="checkbox"
@@ -143,7 +143,6 @@ export default function HotelsPage() {
               Availability
             </label>
           </div>
-
           <button
             onClick={applyFilters}
             className="w-full bg-purple-500 hover:bg-purple-600 text-white py-3 rounded-lg font-semibold transition"
@@ -163,51 +162,42 @@ export default function HotelsPage() {
               <Link
                 key={hotel.id}
                 href={`/hotels/${hotel.id}`}
-                className="block group no-underline"  // ← added no-underline to remove default link underline
+                className="block group no-underline"
               >
                 <div className="flex flex-col md:flex-row bg-blue-100 rounded-xl overflow-hidden shadow-md">
                   {/* Photo */}
                   <div className="md:w-1/3 bg-yellow-100 relative min-h-[260px] md:min-h-full">
                     <Image
-                      src={hotel.photos[0]}
+                      src={hotel.photo || '/placeholder-hotel.jpg'} // fallback if null
                       alt={hotel.name}
                       fill
                       className="object-cover"
                       sizes="(max-width: 768px) 100vw, 33vw"
                     />
-
                   </div>
-
                   {/* Content */}
                   <div className="flex-1 p-6 flex flex-col justify-between">
                     <div>
-                      {/* Only this text gets underlined on hover */}
                       <h2 className="text-2xl font-bold text-blue-900 mb-2 group-hover:underline decoration-2 underline-offset-2">
                         {hotel.name}
                       </h2>
                       <p className="text-gray-700 mb-4">{hotel.location}</p>
-
                       <div className="bg-gray-100 p-4 rounded-lg mb-5">
-                        <p className="text-gray-700">{hotel.description}</p>
+                        <p className="text-gray-700 line-clamp-4">{hotel.description}</p>
                       </div>
                     </div>
-
                     <div className="flex flex-wrap items-end justify-between gap-4">
                       <div className="flex flex-wrap gap-3 items-center">
                         <div className="bg-white px-3 py-1 rounded-full shadow text-sm">
                           ⭐ Google
-                          <span className="font-semibold ml-1">
-                            {hotel.googleRating} / 5
-                          </span>
+                          <span className="font-semibold ml-1">{hotel.googleRating} / 5</span>
                         </div>
-
                         <div className="bg-purple-100 px-3 py-1 rounded-full shadow text-sm">
                           🐾 Pawtopia
                           <span className="font-semibold text-purple-800 ml-1">
                             {hotel.pawtopiaRating} / 5
                           </span>
                         </div>
-
                         <span
                           className={`px-3 py-1 rounded-full text-sm font-medium shadow ${hotel.availability ? 'bg-green-200 text-green-900' : 'bg-red-200 text-red-900'
                             }`}
@@ -215,9 +205,6 @@ export default function HotelsPage() {
                           {hotel.availability ? 'Available' : 'Not Available'}
                         </span>
                       </div>
-
-
-                      {/* Price */}
                       <div className="text-right">
                         <div className="text-3xl md:text-4xl font-bold text-green-700">
                           {hotel.price.toLocaleString('vi-VN')} ₫
