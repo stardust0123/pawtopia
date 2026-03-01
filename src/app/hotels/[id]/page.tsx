@@ -53,17 +53,14 @@ export default function HotelDetailPage({ params }: { params: Promise<{ id: stri
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    // Booking states
     const [selectedDates, setSelectedDates] = useState({ start: '', end: '' });
     const [selectedRoom, setSelectedRoom] = useState<string>('');
     const [availabilityStatus, setAvailabilityStatus] = useState<string | null>(null);
     const [totalPrice, setTotalPrice] = useState<number>(0);
 
-    // Reviews (from DB)
     const [reviews, setReviews] = useState<any[]>([]);
     const [newReview, setNewReview] = useState({ rating: 5, comment: '' });
 
-    // Fetch hotel data
     useEffect(() => {
         if (isNaN(hotelId) || hotelId <= 0) {
             setError(`Invalid hotel ID: ${resolvedParams.id || 'missing'}`);
@@ -99,7 +96,6 @@ export default function HotelDetailPage({ params }: { params: Promise<{ id: stri
         fetchHotel();
     }, [hotelId]);
 
-    // Calculate nights
     const calculateNights = (start: string, end: string): number => {
         if (!start || !end) return 0;
         const startDate = new Date(start);
@@ -108,7 +104,6 @@ export default function HotelDetailPage({ params }: { params: Promise<{ id: stri
         return Math.max(Math.ceil(diffTime / (1000 * 60 * 60 * 24)), 1);
     };
 
-    // Check availability
     const isPeriodAvailable = (roomType: string, start: string, end: string): boolean => {
         if (!start || !end || !hotel?.rooms) return false;
         const room = hotel.rooms.find((r: any) => r.type === roomType);
@@ -216,7 +211,7 @@ export default function HotelDetailPage({ params }: { params: Promise<{ id: stri
                     </div>
                 </div>
 
-                {/* Photo Gallery – corrected for string[] */}
+                {/* Photo Gallery */}
                 <section className="mb-16">
                     <h2 className="text-3xl font-bold text-gray-900 mb-6 text-center">Hotel Gallery</h2>
                     {hotel.photos?.length > 0 ? (
@@ -249,24 +244,28 @@ export default function HotelDetailPage({ params }: { params: Promise<{ id: stri
                     )}
                 </section>
 
-                {/* Main content */}
+                {/* Main content – equal height columns */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 xl:gap-12">
-                    {/* Left: About + Amenities */}
-                    <div className="space-y-10">
-                        <section className="bg-white p-8 rounded-2xl shadow-md">
+                    {/* Left column */}
+                    <div className="flex flex-col h-full space-y-10">
+                        <section className="bg-white p-8 rounded-2xl shadow-md flex-1">
                             <h2 className="text-3xl font-bold text-gray-900 mb-6">About {hotel.name}</h2>
                             <p className="text-gray-700 leading-relaxed text-lg">
                                 {hotel.description || 'No detailed description available at the moment.'}
                             </p>
                         </section>
 
-                        <section className="bg-white p-8 rounded-2xl shadow-md">
+                        <section className="bg-white p-8 rounded-2xl shadow-md flex-1">
                             <h2 className="text-2xl font-bold text-gray-900 mb-5">Amenities</h2>
                             {hotel.amenities?.length > 0 ? (
-                                <ul className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-gray-700">
+                                <ul className="grid grid-cols-2 gap-3 text-gray-700">
                                     {hotel.amenities.map((amenity: string, i: number) => (
-                                        <li key={i} className="flex items-center gap-2 bg-gray-50 px-4 py-2 rounded-lg">
-                                            <span className="text-purple-600">✔</span> {amenity}
+                                        <li
+                                            key={i}
+                                            className="flex items-center gap-2 bg-gray-50 px-4 py-3 rounded-lg border border-gray-100 hover:bg-gray-100 transition-colors"
+                                        >
+                                            <span className="text-purple-600 text-lg">✔</span>
+                                            <span className="text-sm font-medium">{amenity}</span>
                                         </li>
                                     ))}
                                 </ul>
@@ -276,12 +275,12 @@ export default function HotelDetailPage({ params }: { params: Promise<{ id: stri
                         </section>
                     </div>
 
-                    {/* Right: Map + Contact */}
-                    <div className="space-y-10">
-                        <section className="bg-white p-8 rounded-2xl shadow-md">
+                    {/* Right column */}
+                    <div className="flex flex-col h-full space-y-10">
+                        <section className="bg-white p-8 rounded-2xl shadow-md flex-1">
                             <h2 className="text-3xl font-bold text-gray-900 mb-6">Location</h2>
                             <div className="h-[500px] rounded-2xl overflow-hidden border border-gray-200 shadow-inner">
-                                <MapContainer center={[10.7769, 106.7009]} zoom={15} className="h-full w-full">
+                                <MapContainer center={[10.7769, 106.7009]} zoom={15} className="h-full w-full z-0">
                                     <TileLayer
                                         attribution='© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -296,8 +295,7 @@ export default function HotelDetailPage({ params }: { params: Promise<{ id: stri
                             </div>
                         </section>
 
-                        {/* Contact Information */}
-                        <section className="bg-white p-8 rounded-2xl shadow-md">
+                        <section className="bg-white p-8 rounded-2xl shadow-md flex-1">
                             <h2 className="text-2xl font-bold text-gray-900 mb-5">Contact Information</h2>
                             {hotel.contact ? (
                                 <div className="space-y-4 text-gray-700">
@@ -368,7 +366,7 @@ export default function HotelDetailPage({ params }: { params: Promise<{ id: stri
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="text-black hover:text-gray-800 transition-colors"
-                                        aria-label="TikTok (using Music as placeholder)"
+                                        aria-label="TikTok"
                                     >
                                         <Music size={28} />
                                     </a>
@@ -447,8 +445,8 @@ export default function HotelDetailPage({ params }: { params: Promise<{ id: stri
                         onClick={handleBook}
                         disabled={availabilityStatus !== 'Available'}
                         className={`w-full py-4 px-6 rounded-xl font-bold text-white text-lg transition-colors ${availabilityStatus === 'Available'
-                                ? 'bg-purple-600 hover:bg-purple-700'
-                                : 'bg-gray-400 cursor-not-allowed'
+                            ? 'bg-purple-600 hover:bg-purple-700'
+                            : 'bg-gray-400 cursor-not-allowed'
                             }`}
                     >
                         Book Now
