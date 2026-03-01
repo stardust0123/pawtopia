@@ -26,8 +26,71 @@ model Hotel {
   googleRating   Float    @default(0)
   pawtopiaRating Float    @default(0)
   availability   Boolean  @default(true)
-  price          Int
+  basePrice      Int?     // ← Changed to optional (Int?)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
-  photos         String[]
+
+  photos         HotelPhoto[]
+  amenities      HotelAmenity[]
+  rooms          Room[]
+  reviews        Review[]
+  contact        HotelContactInformation?
+}
+
+model HotelPhoto {
+  id      Int    @id @default(autoincrement())
+  hotelId Int
+  url     String
+  hotel   Hotel  @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+}
+
+model Amenity {
+  id     Int            @id @default(autoincrement())
+  name   String         @unique
+  hotels HotelAmenity[]
+}
+
+model HotelAmenity {
+  hotelId   Int
+  amenityId Int
+  hotel     Hotel   @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  amenity   Amenity @relation(fields: [amenityId], references: [id], onDelete: Cascade)
+
+  @@id([hotelId, amenityId])
+}
+
+model HotelContactInformation {
+  id         Int    @id @default(autoincrement())
+  hotelId    Int    @unique
+  phone      String
+  email      String
+  hotel      Hotel  @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+}
+
+model Room {
+  id          Int               @id @default(autoincrement())
+  hotelId     Int
+  type        String
+  price       Int
+  description String
+  hotel       Hotel             @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  availability RoomAvailability[]
+}
+
+model RoomAvailability {
+  id        Int      @id @default(autoincrement())
+  roomId    Int
+  startDate DateTime
+  endDate   DateTime
+  room      Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+}
+
+model Review {
+  id        Int      @id @default(autoincrement())
+  hotelId   Int
+  user      String
+  rating    Int
+  comment   String?
+  date      DateTime @default(now())
+  hotel     Hotel    @relation(fields: [hotelId], references: [id], onDelete: Cascade)
 }

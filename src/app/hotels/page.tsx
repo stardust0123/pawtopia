@@ -1,4 +1,4 @@
-// pawtopia\src\app\hotels\page.tsx
+// pawtopia/src/app/hotels/page.tsx
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -19,11 +19,12 @@ export default function HotelsPage() {
     available: false,
   });
 
-  // Fetch hotels from API route (or directly from server component in future)
+  // Fetch hotels from API
   useEffect(() => {
     async function fetchHotels() {
       try {
         const res = await fetch('/api/hotels');
+        if (!res.ok) throw new Error('Failed to fetch');
         const data = await res.json();
         setHotels(data);
       } catch (err) {
@@ -35,7 +36,7 @@ export default function HotelsPage() {
     fetchHotels();
   }, []);
 
-  // Simple client-side filter (you can move to server later)
+  // Client-side filtering
   const filteredHotels = hotels.filter((h) => {
     const matchesSearch =
       !filters.search.trim() ||
@@ -48,8 +49,8 @@ export default function HotelsPage() {
     const matchesRating = filters.minRating === 0 || h.pawtopiaRating >= filters.minRating;
 
     const matchesPrice =
-      (!filters.minPrice || h.price >= Number(filters.minPrice)) &&
-      (!filters.maxPrice || h.price <= Number(filters.maxPrice));
+      (!filters.minPrice || h.basePrice >= Number(filters.minPrice)) &&
+      (!filters.maxPrice || h.basePrice <= Number(filters.maxPrice));
 
     const matchesAvailability = !filters.available || h.availability;
 
@@ -57,7 +58,7 @@ export default function HotelsPage() {
   });
 
   const applyFilters = () => {
-    // Just re-render — filters already applied via state
+    // No extra logic needed — filters are reactive via state
   };
 
   if (loading) {
@@ -71,8 +72,8 @@ export default function HotelsPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 pt-20 flex flex-col lg:flex-row gap-8">
-        {/* Left Filters Panel */}
-        <aside className="lg:w-96 xl:w-[400px] bg-white rounded-xl shadow-lg p-6 space-y-6">
+        {/* ── Filters Sidebar ── */}
+        <aside className="lg:w-96 xl:w-[400px] bg-white rounded-xl shadow-lg p-6 space-y-6 sticky top-20 h-fit">
           <input
             type="text"
             placeholder="Search hotels..."
@@ -80,6 +81,7 @@ export default function HotelsPage() {
             value={filters.search}
             onChange={(e) => setFilters({ ...filters, search: e.target.value })}
           />
+
           <select
             className="w-full p-3 border border-gray-300 rounded-lg bg-green-50"
             value={filters.city}
@@ -90,6 +92,7 @@ export default function HotelsPage() {
             <option value="Hanoi">Hanoi</option>
             <option value="Da Nang">Da Nang</option>
           </select>
+
           <select
             className="w-full p-3 border border-gray-300 rounded-lg bg-green-50"
             value={filters.minRating}
@@ -101,6 +104,7 @@ export default function HotelsPage() {
             <option value={3.5}>3.5+</option>
             <option value={3}>3+</option>
           </select>
+
           <div className="grid grid-cols-2 gap-4">
             <input
               type="number"
@@ -117,6 +121,7 @@ export default function HotelsPage() {
               onChange={(e) => setFilters({ ...filters, maxPrice: e.target.value })}
             />
           </div>
+
           <div className="grid grid-cols-2 gap-4">
             <input
               type="date"
@@ -131,6 +136,7 @@ export default function HotelsPage() {
               onChange={(e) => setFilters({ ...filters, endDate: e.target.value })}
             />
           </div>
+
           <div className="flex items-center gap-3 bg-pink-50 p-3 rounded-lg">
             <input
               type="checkbox"
@@ -140,21 +146,22 @@ export default function HotelsPage() {
               onChange={(e) => setFilters({ ...filters, available: e.target.checked })}
             />
             <label htmlFor="availability" className="text-gray-700 font-medium">
-              Availability
+              Available only
             </label>
           </div>
+
           <button
             onClick={applyFilters}
             className="w-full bg-purple-500 hover:bg-purple-600 text-white py-3 rounded-lg font-semibold transition"
           >
-            Apply filter
+            Apply Filters
           </button>
         </aside>
 
-        {/* Hotel List */}
+        {/* ── Hotel List ── */}
         <main className="flex-1 space-y-8">
           {filteredHotels.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">
+            <div className="text-center py-12 text-gray-500 text-lg">
               No hotels match your filters. Try adjusting your search.
             </div>
           ) : (
@@ -164,17 +171,18 @@ export default function HotelsPage() {
                 href={`/hotels/${hotel.id}`}
                 className="block group no-underline"
               >
-                <div className="flex flex-col md:flex-row bg-blue-100 rounded-xl overflow-hidden shadow-md">
+                <div className="flex flex-col md:flex-row bg-blue-100 rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow">
                   {/* Photo */}
                   <div className="md:w-1/3 bg-yellow-100 relative min-h-[260px] md:min-h-full">
                     <Image
-                      src={hotel.photos?.[0] || '/placeholder-hotel.jpg'}  // use first photo from array
+                      src={hotel.photo || '/placeholder-hotel.jpg'} // first photo (from API formatting)
                       alt={hotel.name}
                       fill
                       className="object-cover"
                       sizes="(max-width: 768px) 100vw, 33vw"
                     />
                   </div>
+
                   {/* Content */}
                   <div className="flex-1 p-6 flex flex-col justify-between">
                     <div>
@@ -186,6 +194,7 @@ export default function HotelsPage() {
                         <p className="text-gray-700 line-clamp-4">{hotel.description}</p>
                       </div>
                     </div>
+
                     <div className="flex flex-wrap items-end justify-between gap-4">
                       <div className="flex flex-wrap gap-3 items-center">
                         <div className="bg-white px-3 py-1 rounded-full shadow text-sm">
@@ -205,9 +214,10 @@ export default function HotelsPage() {
                           {hotel.availability ? 'Available' : 'Not Available'}
                         </span>
                       </div>
+
                       <div className="text-right">
                         <div className="text-3xl md:text-4xl font-bold text-green-700">
-                          {hotel.price.toLocaleString('vi-VN')} ₫
+                          {hotel.basePrice.toLocaleString('vi-VN')} ₫
                         </div>
                       </div>
                     </div>
