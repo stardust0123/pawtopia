@@ -140,7 +140,6 @@ export default function HotelDetailPage({ params }: { params: Promise<{ id: stri
             alert('This period is not available. Please choose different dates.');
             return;
         }
-
         const query = new URLSearchParams({
             start: selectedDates.start,
             end: selectedDates.end,
@@ -148,7 +147,6 @@ export default function HotelDetailPage({ params }: { params: Promise<{ id: stri
             nights: calculateNights(selectedDates.start, selectedDates.end).toString(),
             total: totalPrice.toString(),
         }).toString();
-
         router.push(`/hotels/${hotelId}/book?${query}`);
     };
 

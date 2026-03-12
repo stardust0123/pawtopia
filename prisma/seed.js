@@ -534,15 +534,18 @@ const mockHotels = [
 async function main() {
   console.log('Starting full Cat Hotel Module seed...');
 
-  await prisma.hotel.deleteMany({});
-  await prisma.hotelPhoto.deleteMany({});
+  // Delete everything first (clean slate)
+  await prisma.booking.deleteMany({});
+  await prisma.review.deleteMany({});
+  await prisma.roomAvailability.deleteMany({});
+  await prisma.room.deleteMany({});
+  await prisma.hotelContactInformation.deleteMany({});
   await prisma.hotelAmenity.deleteMany({});
   await prisma.amenity.deleteMany({});
-  await prisma.hotelContactInformation.deleteMany({});
-  await prisma.room.deleteMany({});
-  await prisma.roomAvailability.deleteMany({});
-  await prisma.review.deleteMany({});
+  await prisma.hotelPhoto.deleteMany({});
+  await prisma.hotel.deleteMany({});
 
+  // Re-create hotels + relations (your existing code)
   for (const h of mockHotels) {
     const hotel = await prisma.hotel.create({
       data: {
@@ -556,70 +559,46 @@ async function main() {
       },
     });
 
-    // Photos
+    // Photos, Amenities, Contact, Rooms, Reviews → keep your existing code here
     if (h.photos && h.photos.length > 0) {
-      await prisma.hotelPhoto.createMany({
-        data: h.photos.map(url => ({ hotelId: hotel.id, url })),
-      });
+      await prisma.hotelPhoto.createMany({ data: h.photos.map(url => ({ hotelId: hotel.id, url })) });
     }
-
-    // Amenities
     for (const amenityName of h.amenities || []) {
-      const amenity = await prisma.amenity.upsert({
-        where: { name: amenityName },
-        update: {},
-        create: { name: amenityName },
-      });
-      await prisma.hotelAmenity.create({
-        data: { hotelId: hotel.id, amenityId: amenity.id },
-      });
+      const amenity = await prisma.amenity.upsert({ where: { name: amenityName }, update: {}, create: { name: amenityName } });
+      await prisma.hotelAmenity.create({ data: { hotelId: hotel.id, amenityId: amenity.id } });
     }
-
-    // Contact
     if (h.contact) {
-      await prisma.hotelContactInformation.create({
-        data: {
-          hotelId: hotel.id,
-          phone: h.contact.phone,
-          email: h.contact.email,
-        },
-      });
+      await prisma.hotelContactInformation.create({ data: { hotelId: hotel.id, phone: h.contact.phone, email: h.contact.email } });
     }
-
-    // Rooms + Availability
     for (const r of h.rooms || []) {
-      const room = await prisma.room.create({
-        data: {
-          hotelId: hotel.id,
-          type: r.type,
-          price: r.price,
-          description: r.description,
-        },
-      });
-
+      const room = await prisma.room.create({ data: { hotelId: hotel.id, type: r.type, price: r.price, description: r.description } });
       for (const period of r.availability || []) {
-        await prisma.roomAvailability.create({
-          data: {
-            roomId: room.id,
-            startDate: new Date(period.start),
-            endDate: new Date(period.end),
-          },
-        });
+        await prisma.roomAvailability.create({ data: { roomId: room.id, startDate: new Date(period.start), endDate: new Date(period.end) } });
       }
     }
-
-    // Reviews
     for (const rev of h.reviews || []) {
-      await prisma.review.create({
-        data: {
-          hotelId: hotel.id,
-          user: rev.user,
-          rating: rev.rating,
-          comment: rev.comment || '',
-          date: rev.date ? new Date(rev.date) : new Date(),
-        },
-      });
+      await prisma.review.create({ data: { hotelId: hotel.id, user: rev.user, rating: rev.rating, comment: rev.comment || '', date: rev.date ? new Date(rev.date) : new Date() } });
     }
+  }
+
+  // === BOOKINGS ===
+  console.log('Seeding sample bookings...');
+  const sampleBookings = [
+    { hotelId: 1, roomType: 'Standard Room', startDate: '2026-01-20', endDate: '2026-01-22', numCats: 2, totalPrice: 2000000, fullName: 'Jane T.', email: 'jane@example.com', phone: '+84 123 456 789', specialRequests: 'Dietary needs' },
+    { hotelId: 3, roomType: 'Playful Suite', startDate: '2026-02-01', endDate: '2026-02-05', numCats: 1, totalPrice: 2400000, fullName: 'Alex P.', email: 'alex@gmail.com', phone: '+84 987 654 321' },
+    { hotelId: 4, roomType: 'Deluxe Suite', startDate: '2026-03-10', endDate: '2026-03-15', numCats: 3, totalPrice: 2250000, fullName: 'Minh Nguyen', email: 'minh@work.com', phone: '+84 912 345 678' },
+    { hotelId: 7, roomType: 'Ocean View Room', startDate: '2026-02-10', endDate: '2026-02-15', numCats: 1, totalPrice: 2000000, fullName: 'Sarah L.', email: 'sarah@catlover.vn', phone: '+84 555 666 777' },
+  ];
+
+  for (const b of sampleBookings) {
+    await prisma.booking.create({
+      data: {
+        ...b,
+        startDate: new Date(b.startDate),
+        endDate: new Date(b.endDate),
+      },
+    });
+    console.log(`✅ Created booking for hotelId ${b.hotelId}`);
   }
 
   console.log('✅ All mock data seeded successfully into relational tables!');
