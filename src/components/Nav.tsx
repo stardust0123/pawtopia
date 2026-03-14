@@ -4,9 +4,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, User } from "lucide-react";
 import { useCart } from "@/context/CartContext";
-import { CartButton } from "@/ui/icons";
+import { CartButton, ProfileButton } from "@/ui/icons";
 
 export default function Nav() {
   const pathname = usePathname();
@@ -57,8 +57,8 @@ export default function Nav() {
             About Us
           </Link>
 
-          <Link href="/signin" className={linkClass("/signin")}>
-            Sign In
+          <Link href="/signin" className="ml-4">
+            <User size={20} className="text-orange-400 hover:text-orange-500" />
           </Link>
 
           {/* 🛒 Cart Icon */}
@@ -116,9 +116,10 @@ export default function Nav() {
 
           <Link
             href="/signin"
-            className={linkClass("/signin")}
+            className="flex items-center px-3 py-2 rounded-md text-sm font-medium text-orange-400 hover:text-orange-500"
             onClick={() => setMenuOpen(false)}
           >
+            <User size={20} className="mr-2" />
             Sign In
           </Link>
 
