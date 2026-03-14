@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
@@ -24,7 +24,14 @@ export default function BookHotelPage() {
         agreeToTerms: false,
     });
 
-    const [toast, setToast] = useState<string | null>(null);   // ← NEW: Toast state
+    // Inline error states
+    const [errors, setErrors] = useState({
+        fullName: '',
+        email: '',
+        phone: '',
+        terms: '',
+    });
+
     const [submitted, setSubmitted] = useState(false);
     const [bookingId, setBookingId] = useState<number | null>(null);
 
@@ -33,18 +40,11 @@ export default function BookHotelPage() {
     const handleChange = (e: any) => {
         const { name, value, type, checked } = e.target;
         setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
-    };
 
-    // Auto-hide toast after 4 seconds
-    useEffect(() => {
-        if (toast) {
-            const timer = setTimeout(() => setToast(null), 4000);
-            return () => clearTimeout(timer);
+        // Clear error for this field when user types
+        if (errors[name as keyof typeof errors]) {
+            setErrors(prev => ({ ...prev, [name]: '' }));
         }
-    }, [toast]);
-
-    const showToast = (message: string) => {
-        setToast(message);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -54,33 +54,40 @@ export default function BookHotelPage() {
         const email = formData.email.trim();
         const phone = formData.phone.trim();
 
-        // 1. Full Name validation
+        let hasError = false;
+        const newErrors = { fullName: '', email: '', phone: '', terms: '' };
+
+        // Full Name
         if (name.length < 3) {
-            showToast('Full name must be at least 3 characters long.');
-            return;
+            newErrors.fullName = 'Full name must be at least 3 characters long.';
+            hasError = true;
         }
 
-        // 2. Email validation
+        // Email
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
-            showToast('Please enter a valid email address.');
-            return;
+            newErrors.email = 'Please enter a valid email address.';
+            hasError = true;
         }
 
-        // 3. Phone validation
+        // Phone
         const phoneRegex = /^(\+84|0)[0-9]{9,10}$/;
         if (!phoneRegex.test(phone)) {
-            showToast('Phone number must start with +84 or 0 and contain 9-10 digits.');
-            return;
+            newErrors.phone = 'Phone number must start with +84 or 0 and contain 9-10 digits.';
+            hasError = true;
         }
 
-        // 4. Terms & Conditions
+        // Terms
         if (!formData.agreeToTerms) {
-            showToast('You must agree to the booking terms and cancellation policy.');
-            return;
+            newErrors.terms = 'You must agree to the booking terms and cancellation policy.';
+            hasError = true;
         }
 
-        // All good → submit
+        setErrors(newErrors);
+
+        if (hasError) return;
+
+        // All good → submit to API
         const res = await fetch('/api/bookings', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -103,7 +110,7 @@ export default function BookHotelPage() {
             setBookingId(result.booking.id);
             setSubmitted(true);
         } else {
-            showToast('Booking failed. Please try again later.');
+            alert('Booking failed. Please try again later.');
         }
     };
 
@@ -125,7 +132,7 @@ export default function BookHotelPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 py-12 pt-4 sm:px-6 lg:px-8">
+        <div className="min-h-screen bg-gray-50 py-12 pt-24 sm:px-6 lg:px-8">   {/* pt-24 fixes nav overlap */}
             <div className="max-w-4xl mx-auto">
                 {/* Header */}
                 <div className="text-center mb-12">
@@ -162,59 +169,106 @@ export default function BookHotelPage() {
                 <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-xl p-8">
                     <h2 className="text-2xl font-bold mb-6 text-gray-800">Guest Information</h2>
 
-                    <div className="grid md:grid-cols-2 gap-6 mb-6">
-                        <div>
-                            <label className="block text-gray-700 font-medium mb-2">Full Name <span className="text-red-500">*</span></label>
-                            <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} required
-                                className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                placeholder="Enter your full name" />
-                        </div>
-                        <div>
-                            <label className="block text-gray-700 font-medium mb-2">Email Address <span className="text-red-500">*</span></label>
-                            <input type="email" name="email" value={formData.email} onChange={handleChange} required
-                                className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                placeholder="your.email@example.com" />
-                        </div>
+                    {/* Full Name */}
+                    <div className="mb-6">
+                        <label className="block text-gray-700 font-medium mb-2">Full Name <span className="text-red-500">*</span></label>
+                        <input
+                            type="text"
+                            name="fullName"
+                            value={formData.fullName}
+                            onChange={handleChange}
+                            required
+                            className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            placeholder="Enter your full name"
+                        />
+                        {errors.fullName && <p className="text-red-500 text-sm mt-1">{errors.fullName}</p>}
                     </div>
 
-                    <div className="grid md:grid-cols-2 gap-6 mb-6">
-                        <div>
-                            <label className="block text-gray-700 font-medium mb-2">Phone Number <span className="text-red-500">*</span></label>
-                            <input type="tel" name="phone" value={formData.phone} onChange={handleChange} required
-                                className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                placeholder="+84 123 456 789" />
-                        </div>
-                        <div>
-                            <label className="block text-gray-700 font-medium mb-2">Number of Cats <span className="text-red-500">*</span></label>
-                            <select name="numCats" value={formData.numCats} onChange={handleChange} required
-                                className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white">
-                                <option value="1">1 cat</option>
-                                <option value="2">2 cats</option>
-                                <option value="3">3 cats</option>
-                                <option value="4">4 cats</option>
-                                <option value="5">5 cats</option>
-                            </select>
-                        </div>
+                    {/* Email */}
+                    <div className="mb-6">
+                        <label className="block text-gray-700 font-medium mb-2">Email Address <span className="text-red-500">*</span></label>
+                        <input
+                            type="email"
+                            name="email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            required
+                            className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            placeholder="your.email@example.com"
+                        />
+                        {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
                     </div>
 
+                    {/* Phone */}
+                    <div className="mb-6">
+                        <label className="block text-gray-700 font-medium mb-2">Phone Number <span className="text-red-500">*</span></label>
+                        <input
+                            type="tel"
+                            name="phone"
+                            value={formData.phone}
+                            onChange={handleChange}
+                            required
+                            className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            placeholder="+84 123 456 789"
+                        />
+                        {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
+                    </div>
+
+                    {/* Number of Cats */}
+                    <div className="mb-6">
+                        <label className="block text-gray-700 font-medium mb-2">Number of Cats <span className="text-red-500">*</span></label>
+                        <select
+                            name="numCats"
+                            value={formData.numCats}
+                            onChange={handleChange}
+                            required
+                            className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white"
+                        >
+                            <option value="1">1 cat</option>
+                            <option value="2">2 cats</option>
+                            <option value="3">3 cats</option>
+                            <option value="4">4 cats</option>
+                            <option value="5">5 cats</option>
+                        </select>
+                    </div>
+
+                    {/* Special Requests */}
                     <div className="mb-8">
                         <label className="block text-gray-700 font-medium mb-2">Special Requests (optional)</label>
-                        <textarea name="specialRequests" value={formData.specialRequests} onChange={handleChange} rows={4}
+                        <textarea
+                            name="specialRequests"
+                            value={formData.specialRequests}
+                            onChange={handleChange}
+                            rows={4}
                             className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                            placeholder="e.g. late check-in, dietary needs..." />
+                            placeholder="e.g. late check-in, dietary needs..."
+                        />
                     </div>
 
-                    <div className="mb-8 flex items-start gap-3">
-                        <input type="checkbox" name="agreeToTerms" id="agreeToTerms" checked={formData.agreeToTerms}
-                            onChange={handleChange} className="mt-1 h-5 w-5 text-purple-600 rounded border-gray-300" required />
-                        <label htmlFor="agreeToTerms" className="text-gray-600">
-                            I agree to the{' '}
-                            <Link href="#" className="text-purple-600 hover:underline">booking terms & cancellation policy</Link>.
-                        </label>
+                    {/* Terms Checkbox */}
+                    <div className="mb-8">
+                        <div className="flex items-start gap-3">
+                            <input
+                                type="checkbox"
+                                name="agreeToTerms"
+                                id="agreeToTerms"
+                                checked={formData.agreeToTerms}
+                                onChange={handleChange}
+                                className="mt-1 h-5 w-5 text-purple-600 rounded border-gray-300"
+                                required
+                            />
+                            <label htmlFor="agreeToTerms" className="text-gray-600">
+                                I agree to the{' '}
+                                <Link href="#" className="text-purple-600 hover:underline">booking terms & cancellation policy</Link>.
+                            </label>
+                        </div>
+                        {errors.terms && <p className="text-red-500 text-sm mt-1">{errors.terms}</p>}
                     </div>
 
-                    <button type="submit"
-                        className="w-full bg-purple-600 hover:bg-purple-700 text-white py-4 rounded-xl font-bold text-lg transition-colors">
+                    <button
+                        type="submit"
+                        className="w-full bg-purple-600 hover:bg-purple-700 text-white py-4 rounded-xl font-bold text-lg transition-colors"
+                    >
                         Confirm Booking
                     </button>
                 </form>
@@ -223,14 +277,6 @@ export default function BookHotelPage() {
                     <Link href={`/hotels/${hotelId}`} className="text-purple-600 hover:underline">← Back to Hotel Details</Link>
                 </div>
             </div>
-
-            {/* FLOATING TOAST - appears at bottom of screen */}
-            {toast && (
-                <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-red-600 text-white px-8 py-4 rounded-2xl shadow-2xl flex items-center gap-3 z-[9999] animate-fade-in">
-                    <span className="text-xl">⚠️</span>
-                    <span className="font-medium">{toast}</span>
-                </div>
-            )}
         </div>
     );
 }

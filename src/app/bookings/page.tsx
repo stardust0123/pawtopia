@@ -21,7 +21,7 @@ export default function BookingsPage() {
     return (
         <div className="min-h-screen bg-gray-50 py-12">
             <div className="max-w-6xl mx-auto px-4">
-                <h1 className="text-4xl font-bold text-gray-900 mb-10">My Booking History</h1>
+                <h1 className="text-4xl font-bold text-gray-900 mt-10 mb-10">My Booking History</h1>
 
                 {bookings.length === 0 ? (
                     <div className="text-center py-20 bg-white rounded-2xl">You have no bookings yet.</div>
