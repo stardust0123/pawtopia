@@ -7,7 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 model Product {
   id          Int      @id @default(autoincrement())
   name        String
@@ -19,38 +18,6 @@ model Product {
   stock       Int?
 }
 
-<<<<<<< HEAD
-model Hotel {
-  id             Int                      @id @default(autoincrement())
-  name           String
-  location       String
-  description    String
-  googleRating   Float                    @default(0)
-  pawtopiaRating Float                    @default(0)
-  availability   Boolean                  @default(true)
-  createdAt      DateTime                 @default(now())
-  updatedAt      DateTime                 @updatedAt
-  basePrice      Int?
-  amenities      HotelAmenity[]
-  contact        HotelContactInformation?
-  photos         HotelPhoto[]
-  reviews        Review[]
-  rooms          Room[]
-  bookings       Booking[]
-}
-
-model HotelPhoto {
-  id      Int    @id @default(autoincrement())
-  hotelId Int
-  url     String
-  hotel   Hotel  @relation(fields: [hotelId], references: [id], onDelete: Cascade)
-}
-
-model Amenity {
-  id     Int            @id @default(autoincrement())
-  name   String         @unique
-  hotels HotelAmenity[]
-=======
 enum Role {
   USER
   ADMIN
@@ -65,10 +32,88 @@ model User {
   createdAt DateTime @default(now())
 }
 
+model Hotel {
+  id             Int                      @id @default(autoincrement())
+  name           String
+  location       String
+  description    String
+  googleRating   Float                    @default(0)
+  pawtopiaRating Float                    @default(0)
+  availability   Boolean                  @default(true)
+  createdAt      DateTime                 @default(now())
+  updatedAt      DateTime                 @updatedAt
+  basePrice      Int?
+
+  amenities      HotelAmenity[]
+  contact        HotelContactInformation?
+  photos         HotelPhoto[]
+  reviews        Review[]
+  rooms          Room[]
+  bookings       Booking[]
+}
+
+model HotelPhoto {
+  id      Int    @id @default(autoincrement())
+  hotelId Int
+  url     String
+
+  hotel   Hotel  @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+}
+
 model Amenity {
-  id           Int            @id @default(autoincrement())
-  name         String         @unique
-  HotelAmenity HotelAmenity[]
+  id     Int            @id @default(autoincrement())
+  name   String         @unique
+  hotels HotelAmenity[]
+}
+
+model HotelAmenity {
+  hotelId   Int
+  amenityId Int
+
+  amenity   Amenity @relation(fields: [amenityId], references: [id], onDelete: Cascade)
+  hotel     Hotel   @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+
+  @@id([hotelId, amenityId])
+}
+
+model HotelContactInformation {
+  id      Int    @id @default(autoincrement())
+  hotelId Int    @unique
+  phone   String
+  email   String
+
+  hotel   Hotel  @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+}
+
+model Room {
+  id           Int                @id @default(autoincrement())
+  hotelId      Int
+  type         String
+  price        Int
+  description  String
+
+  hotel        Hotel              @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  availability RoomAvailability[]
+}
+
+model RoomAvailability {
+  id        Int      @id @default(autoincrement())
+  roomId    Int
+  startDate DateTime
+  endDate   DateTime
+
+  room      Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+}
+
+model Review {
+  id      Int      @id @default(autoincrement())
+  hotelId Int
+  user    String
+  rating  Int
+  comment String?
+  date    DateTime @default(now())
+
+  hotel   Hotel    @relation(fields: [hotelId], references: [id], onDelete: Cascade)
 }
 
 model Booking {
@@ -85,133 +130,8 @@ model Booking {
   specialRequests String?
   status          String   @default("Confirmed")
   createdAt       DateTime @default(now())
-  Hotel           Hotel    @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+
+  hotel           Hotel    @relation(fields: [hotelId], references: [id], onDelete: Cascade)
 
   @@index([email])
-}
-
-model Hotel {
-  id                      Int                      @id @default(autoincrement())
-  name                    String
-  location                String
-  description             String
-  googleRating            Float                    @default(0)
-  pawtopiaRating          Float                    @default(0)
-  availability            Boolean                  @default(true)
-  createdAt               DateTime                 @default(now())
-  updatedAt               DateTime
-  basePrice               Int?
-  Booking                 Booking[]
-  HotelAmenity            HotelAmenity[]
-  HotelContactInformation HotelContactInformation?
-  HotelPhoto              HotelPhoto[]
-  Review                  Review[]
-  Room                    Room[]
->>>>>>> 02b801e (Add User sign up / sign in)
-}
-
-model HotelAmenity {
-  hotelId   Int
-  amenityId Int
-<<<<<<< HEAD
-  amenity   Amenity @relation(fields: [amenityId], references: [id], onDelete: Cascade)
-  hotel     Hotel   @relation(fields: [hotelId], references: [id], onDelete: Cascade)
-=======
-  Amenity   Amenity @relation(fields: [amenityId], references: [id], onDelete: Cascade)
-  Hotel     Hotel   @relation(fields: [hotelId], references: [id], onDelete: Cascade)
->>>>>>> 02b801e (Add User sign up / sign in)
-
-  @@id([hotelId, amenityId])
-}
-
-model HotelContactInformation {
-  id      Int    @id @default(autoincrement())
-  hotelId Int    @unique
-  phone   String
-  email   String
-<<<<<<< HEAD
-  hotel   Hotel  @relation(fields: [hotelId], references: [id], onDelete: Cascade)
-}
-
-model Room {
-  id           Int                @id @default(autoincrement())
-  hotelId      Int
-  type         String
-  price        Int
-  description  String
-  hotel        Hotel              @relation(fields: [hotelId], references: [id], onDelete: Cascade)
-  availability RoomAvailability[]
-}
-
-model RoomAvailability {
-  id        Int      @id @default(autoincrement())
-  roomId    Int
-  startDate DateTime
-  endDate   DateTime
-  room      Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
-=======
-  Hotel   Hotel  @relation(fields: [hotelId], references: [id], onDelete: Cascade)
-}
-
-model HotelPhoto {
-  id      Int    @id @default(autoincrement())
-  hotelId Int
-  url     String
-  Hotel   Hotel  @relation(fields: [hotelId], references: [id], onDelete: Cascade)
->>>>>>> 02b801e (Add User sign up / sign in)
-}
-
-model Review {
-  id      Int      @id @default(autoincrement())
-  hotelId Int
-  user    String
-  rating  Int
-  comment String?
-  date    DateTime @default(now())
-<<<<<<< HEAD
-  hotel   Hotel    @relation(fields: [hotelId], references: [id], onDelete: Cascade)
-}
-
-model Booking {
-  id      Int   @id @default(autoincrement())
-  hotelId Int
-  hotel   Hotel @relation(fields: [hotelId], references: [id], onDelete: Cascade)
-
-  roomType   String
-  startDate  DateTime
-  endDate    DateTime
-  numCats    Int
-  totalPrice Int
-
-  fullName        String
-  email           String
-  phone           String
-  specialRequests String?
-
-  status String @default("Confirmed") // Confirmed, Pending, Cancelled
-
-  createdAt DateTime @default(now())
-
-  @@index([email])
-=======
-  Hotel   Hotel    @relation(fields: [hotelId], references: [id], onDelete: Cascade)
-}
-
-model Room {
-  id               Int                @id @default(autoincrement())
-  hotelId          Int
-  type             String
-  price            Int
-  description      String
-  Hotel            Hotel              @relation(fields: [hotelId], references: [id], onDelete: Cascade)
-  RoomAvailability RoomAvailability[]
-}
-
-model RoomAvailability {
-  id        Int      @id @default(autoincrement())
-  roomId    Int
-  startDate DateTime
-  endDate   DateTime
-  Room      Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
->>>>>>> 02b801e (Add User sign up / sign in)
 }
