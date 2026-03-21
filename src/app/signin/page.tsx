@@ -34,7 +34,12 @@ export default function SigninPage() {
 
     localStorage.setItem("token", data.token)
 
-    router.push("/")
+      // Redirect based on role
+      if (data.role === "ADMIN") {
+        router.push("/admin")
+      } else {
+        router.push("/dashboard")
+}
   }
 
   return (

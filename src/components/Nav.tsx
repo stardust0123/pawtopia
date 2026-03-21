@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Menu, X, User } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { CartButton, ProfileButton } from "@/ui/icons";
@@ -13,6 +13,13 @@ export default function Nav() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const { cart } = useCart();
+
+  const [token, setToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    const savedToken = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    setToken(savedToken);
+  }, []);
 
   const totalItems = cart.reduce(
     (sum, item) => sum + item.quantity,
