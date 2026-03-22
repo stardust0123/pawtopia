@@ -4,27 +4,49 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Menu, X, User } from "lucide-react";
+import { Menu, X, User, ChevronDown } from "lucide-react";
 import { useCart } from "@/context/CartContext";
-import { CartButton, ProfileButton } from "@/ui/icons";
 
 export default function Nav() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  const { cart } = useCart();
+  const { cart, loadCart } = useCart();
+  const totalItems = cart.reduce(
+  (sum, item) => sum + item.quantity,
+  0
+)
 
   const [token, setToken] = useState<string | null>(null);
+  const [role, setRole] = useState<string | null>(null);
 
   useEffect(() => {
     const savedToken = typeof window !== "undefined" ? localStorage.getItem("token") : null;
     setToken(savedToken);
+
+    if (savedToken) {
+      loadCart();
+      fetch("/api/user", {
+        headers: { Authorization: `Bearer ${savedToken}` },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data?.role) setRole(data.role);
+        })
+        .catch((err) => {
+          console.error("Error fetching user role:", err);
+          setRole(null);
+        });
+    } else {
+      setRole(null);
+    }
   }, []);
 
-  const totalItems = cart.reduce(
-    (sum, item) => sum + item.quantity,
-    0
-  );
+  const handleLogout = () => {
+    localStorage.removeItem("token")
+    window.location.href = "/"
+  }
 
   const linkClass = (path: string) =>
     `block px-3 py-2 rounded-md text-sm font-medium ${
@@ -64,20 +86,85 @@ export default function Nav() {
             About Us
           </Link>
 
-          <Link href="/signin" className="ml-4">
-            <User size={20} className="text-orange-400 hover:text-orange-500" />
-          </Link>
-
-          {/* 🛒 Cart Icon */}
           <div className="relative ml-4">
-            <Link href="/cart">
-              <CartButton />
-            </Link>
+            <button
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              className="flex items-center text-orange-400 hover:text-orange-500"
+            >
+              <User size={20} />
+              <ChevronDown size={16} className="ml-1" />
+            </button>
 
-            {totalItems > 0 && (
-              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
-                {totalItems}
-              </span>
+            {dropdownOpen && (
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50">
+                <div className="py-1">
+                  {token ? (
+                    <>
+                      <Link
+                        href="/dashboard"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => setDropdownOpen(false)}
+                      >
+                        Dashboard
+                      </Link>
+                      <Link
+                        href="/cart"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => setDropdownOpen(false)}
+                      >
+                        My Cart
+                      </Link>
+                      <Link
+                        href="/profile"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => setDropdownOpen(false)}
+                      >
+                        Settings
+                      </Link>
+                      <Link
+                        href="/help"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => setDropdownOpen(false)}
+                      >
+                        Help & Support
+                      </Link>
+                      <button
+                        onClick={() => {
+                          handleLogout()
+                          setDropdownOpen(false)
+                        }}
+                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        Log Out
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <Link
+                        href="/signin"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => setDropdownOpen(false)}
+                      >
+                        Log In/Sign Up
+                      </Link>
+                      <Link
+                        href="/settings"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => setDropdownOpen(false)}
+                      >
+                        Settings
+                      </Link>
+                      <Link
+                        href="/help"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => setDropdownOpen(false)}
+                      >
+                        Help & Support
+                      </Link>
+                    </>
+                  )}
+                </div>
+              </div>
             )}
           </div>
 
@@ -122,27 +209,110 @@ export default function Nav() {
           </Link>
 
           <Link
-            href="/signin"
+            href="#"
             className="flex items-center px-3 py-2 rounded-md text-sm font-medium text-orange-400 hover:text-orange-500"
-            onClick={() => setMenuOpen(false)}
+            onClick={(e) => {
+              e.preventDefault()
+              setDropdownOpen(!dropdownOpen)
+            }}
           >
             <User size={20} className="mr-2" />
-            Sign In
+            Profile
+            <ChevronDown size={16} className="ml-1" />
           </Link>
 
-          {/* Mobile Cart */}
-          <Link
-            href="/cart"
-            className="flex items-center justify-between px-3 py-2 rounded-md text-sm font-medium text-orange-400"
-            onClick={() => setMenuOpen(false)}
-          >
-            Cart
-            {totalItems > 0 && (
-              <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full">
-                {totalItems}
-              </span>
-            )}
-          </Link>
+          {dropdownOpen && (
+            <div className="ml-4 space-y-1">
+              {token ? (
+                <>
+                  <Link
+                    href="/dashboard"
+                    className="block px-3 py-2 text-sm text-orange-400 hover:text-orange-500"
+                    onClick={() => {
+                      setMenuOpen(false)
+                      setDropdownOpen(false)
+                    }}
+                  >
+                    Dashboard
+                  </Link>
+                  <Link
+                    href="/cart"
+                    className="block px-3 py-2 text-sm text-orange-400 hover:text-orange-500"
+                    onClick={() => {
+                      setMenuOpen(false)
+                      setDropdownOpen(false)
+                    }}
+                  >
+                    My Cart
+                  </Link>
+                  <Link
+                    href="/profile"
+                    className="block px-3 py-2 text-sm text-orange-400 hover:text-orange-500"
+                    onClick={() => {
+                      setMenuOpen(false)
+                      setDropdownOpen(false)
+                    }}
+                  >
+                    Settings
+                  </Link>
+                  <Link
+                    href="/help"
+                    className="block px-3 py-2 text-sm text-orange-400 hover:text-orange-500"
+                    onClick={() => {
+                      setMenuOpen(false)
+                      setDropdownOpen(false)
+                    }}
+                  >
+                    Help & Support
+                  </Link>
+                  <button
+                    onClick={() => {
+                      handleLogout()
+                      setMenuOpen(false)
+                      setDropdownOpen(false)
+                    }}
+                    className="block w-full text-left px-3 py-2 text-sm text-orange-400 hover:text-orange-500"
+                  >
+                    Log Out
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/signin"
+                    className="block px-3 py-2 text-sm text-orange-400 hover:text-orange-500"
+                    onClick={() => {
+                      setMenuOpen(false)
+                      setDropdownOpen(false)
+                    }}
+                  >
+                    Log In/Sign Up
+                  </Link>
+                  <Link
+                    href="/settings"
+                    className="block px-3 py-2 text-sm text-orange-400 hover:text-orange-500"
+                    onClick={() => {
+                      setMenuOpen(false)
+                      setDropdownOpen(false)
+                    }}
+                  >
+                    Settings
+                  </Link>
+                  <Link
+                    href="/help"
+                    className="block px-3 py-2 text-sm text-orange-400 hover:text-orange-500"
+                    onClick={() => {
+                      setMenuOpen(false)
+                      setDropdownOpen(false)
+                    }}
+                  >
+                    Help & Support
+                  </Link>
+                </>
+              )}
+            </div>
+          )}
+
         </div>
       )}
     </header>
