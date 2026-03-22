@@ -51,7 +51,7 @@ export default function Nav() {
   const linkClass = (path: string) =>
     `block px-3 py-2 rounded-md text-sm font-medium ${
       pathname === path
-        ? "bg-theme text-white"
+        ? "bg-orange-500 text-white"
         : "text-orange-400 hover:text-orange-500"
     }`;
 
@@ -85,6 +85,12 @@ export default function Nav() {
           <Link href="/about" className={linkClass("/about")}>
             About Us
           </Link>
+
+          {role === "ADMIN" && (
+            <Link href="/admin" className={linkClass("/admin")}>
+              Admin
+            </Link>
+          )}
 
           <div className="relative ml-4">
             <button
