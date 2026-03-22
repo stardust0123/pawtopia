@@ -1,10 +1,9 @@
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import prisma from '@/lib/prisma';
+import type { Product } from '@prisma/client';
 
 export default async function ProductsPage() {
   // ✅ Fetch data directly in the async component
-  const products = await prisma.product.findMany();
+  const products: Product[] = await prisma.product.findMany();
 
   return (
     <section className="max-w-6xl mx-auto px-6 py-16 text-center space-y-8">

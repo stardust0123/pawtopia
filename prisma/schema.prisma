@@ -16,4 +16,31 @@ model Product {
   imageUrl    String
   category    String
   createdAt   DateTime @default(now())
+  pharmacies  PharmacyProduct[]
+}
+
+model Pharmacy {
+  id        Int      @id @default(autoincrement())
+  name      String
+  address   String
+  latitude  Float
+  longitude Float
+  phone     String
+  hours     String
+  services  String[]
+  imageUrl  String?
+  createdAt DateTime @default(now())
+  products  PharmacyProduct[]
+}
+
+model PharmacyProduct {
+  id         Int      @id @default(autoincrement())
+  pharmacy   Pharmacy @relation(fields: [pharmacyId], references: [id], onDelete: Cascade)
+  pharmacyId Int
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId  Int
+  price      Float
+  inStock    Boolean  @default(true)
+
+  @@unique([pharmacyId, productId])
 }
