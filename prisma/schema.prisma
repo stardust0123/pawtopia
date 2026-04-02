@@ -117,21 +117,28 @@ model Review {
 }
 
 model Booking {
-  id              Int      @id @default(autoincrement())
-  hotelId         Int
-  roomType        String
-  startDate       DateTime
-  endDate         DateTime
-  numCats         Int
-  totalPrice      Int
-  fullName        String
-  email           String
-  phone           String
-  specialRequests String?
-  status          String   @default("Confirmed")
-  createdAt       DateTime @default(now())
+  id                    Int      @id @default(autoincrement())
+  hotelId               Int
+  hotel                 Hotel    @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  
+  roomType              String
+  startDate             DateTime
+  endDate               DateTime
+  numCats               Int
+  totalPrice            Int
+  
+  fullName              String
+  email                 String
+  phone                 String
+  specialRequests       String?
+  
+  status                String   @default("Pending")     // Changed from "Confirmed"
+  
+  // ── NEW STRIPE FIELDS ──
+  stripePaymentIntentId String?                          // e.g. "pi_3..."
+  paid                  Boolean  @default(false)
 
-  hotel           Hotel    @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  createdAt             DateTime @default(now())
 
   @@index([email])
 }

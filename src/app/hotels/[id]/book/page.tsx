@@ -24,7 +24,6 @@ export default function BookHotelPage() {
         agreeToTerms: false,
     });
 
-    // Inline error states
     const [errors, setErrors] = useState({
         fullName: '',
         email: '',
@@ -41,7 +40,7 @@ export default function BookHotelPage() {
         const { name, value, type, checked } = e.target;
         setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
 
-        // Clear error for this field when user types
+        // Clear error when user types
         if (errors[name as keyof typeof errors]) {
             setErrors(prev => ({ ...prev, [name]: '' }));
         }
@@ -57,37 +56,29 @@ export default function BookHotelPage() {
         let hasError = false;
         const newErrors = { fullName: '', email: '', phone: '', terms: '' };
 
-        // Full Name
         if (name.length < 3) {
             newErrors.fullName = 'Full name must be at least 3 characters long.';
             hasError = true;
         }
-
-        // Email
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
             newErrors.email = 'Please enter a valid email address.';
             hasError = true;
         }
-
-        // Phone
         const phoneRegex = /^(\+84|0)[0-9]{9,10}$/;
         if (!phoneRegex.test(phone)) {
             newErrors.phone = 'Phone number must start with +84 or 0 and contain 9-10 digits.';
             hasError = true;
         }
-
-        // Terms
         if (!formData.agreeToTerms) {
             newErrors.terms = 'You must agree to the booking terms and cancellation policy.';
             hasError = true;
         }
 
         setErrors(newErrors);
-
         if (hasError) return;
 
-        // All good → submit to API
+        // Submit to API
         const res = await fetch('/api/bookings', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -121,10 +112,20 @@ export default function BookHotelPage() {
                 <div className="max-w-2xl bg-white rounded-2xl shadow-xl p-10 text-center">
                     <div className="mx-auto w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-6">✓</div>
                     <h1 className="text-3xl font-bold text-green-700 mb-4">Booking Confirmed!</h1>
-                    <p>Booking ID: <strong>#{bookingId}</strong><br />Thank you for booking at <strong>{hotelName}</strong></p>
+                    <p className="text-lg">
+                        Booking ID: <strong>#{bookingId}</strong><br />
+                        Thank you for booking at <strong>{hotelName}</strong>
+                    </p>
                     <div className="mt-8 space-y-4">
-                        <Link href="/bookings" className="block w-full bg-purple-600 text-white py-4 rounded-xl font-bold">View All My Bookings</Link>
-                        <Link href="/hotels" className="text-purple-600 hover:underline">Browse More Hotels</Link>
+                        <Link
+                            href="/bookings"
+                            className="block w-full bg-purple-600 hover:bg-purple-700 text-white py-4 rounded-xl font-bold text-lg transition-colors"
+                        >
+                            View All My Bookings
+                        </Link>
+                        <Link href="/hotels" className="text-purple-600 hover:underline block">
+                            Browse More Hotels
+                        </Link>
                     </div>
                 </div>
             </div>
@@ -274,7 +275,9 @@ export default function BookHotelPage() {
                 </form>
 
                 <div className="mt-8 text-center text-gray-500">
-                    <Link href={`/hotels/${hotelId}`} className="text-purple-600 hover:underline">← Back to Hotel Details</Link>
+                    <Link href={`/hotels/${hotelId}`} className="text-purple-600 hover:underline">
+                        ← Back to Hotel Details
+                    </Link>
                 </div>
             </div>
         </div>
