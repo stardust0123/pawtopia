@@ -98,7 +98,29 @@ export default function BookHotelPage() {
 
         if (res.ok) {
             const result = await res.json();
-            setBookingId(result.booking.id);
+            const newBookingId = result.booking.id;
+            setBookingId(newBookingId);
+
+            // Create Stripe Checkout session and redirect
+            try {
+                const checkoutRes = await fetch('/api/checkout/session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ bookingId: newBookingId, totalPrice: finalTotalPrice, hotelName }),
+                });
+
+                if (checkoutRes.ok) {
+                    const { url } = await checkoutRes.json();
+                    if (url) {
+                        window.location.href = url;
+                        return; // redirecting to Stripe Checkout
+                    }
+                }
+            } catch (err) {
+                console.error('Checkout redirect failed', err);
+            }
+
+            // Fallback: mark submitted if checkout redirect not available
             setSubmitted(true);
         } else {
             alert('Booking failed. Please try again later.');

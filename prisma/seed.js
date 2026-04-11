@@ -591,17 +591,96 @@ async function main() {
   ];
 
   for (const b of sampleBookings) {
+    // Resolve hotel id from seeded hotels to avoid FK issues
+    const hotelDef = mockHotels.find(h => h.id === b.hotelId);
+    const hotelRecord = hotelDef ? await prisma.hotel.findFirst({ where: { name: hotelDef.name } }) : null;
+    if (!hotelRecord) {
+      console.warn(`Skipping booking for missing hotelId ${b.hotelId}`);
+      continue;
+    }
+
     await prisma.booking.create({
       data: {
-        ...b,
+        hotelId: hotelRecord.id,
+        roomType: b.roomType,
         startDate: new Date(b.startDate),
         endDate: new Date(b.endDate),
+        numCats: b.numCats,
+        totalPrice: b.totalPrice,
+        fullName: b.fullName,
+        email: b.email,
+        phone: b.phone,
+        specialRequests: b.specialRequests || null,
       },
     });
-    console.log(`✅ Created booking for hotelId ${b.hotelId}`);
+    console.log(`✅ Created booking for hotelId ${hotelRecord.id} (${hotelRecord.name})`);
   }
 
   console.log('✅ All mock data seeded successfully into relational tables!');
+
+
+  console.log('Seeding Insurance Plans...');
+
+  const providers = [
+    { name: 'PawGuard Insurance', logoUrl: 'https://example.com/pawguard.png', description: 'Comprehensive cat insurance since 2018' },
+    { name: 'FelineShield', logoUrl: 'https://example.com/felineshield.png', description: 'Affordable protection for your feline' },
+  ];
+
+  for (const p of providers) {
+    const existing = await prisma.insuranceProvider.findFirst({ where: { name: p.name } });
+    if (!existing) {
+      await prisma.insuranceProvider.create({ data: p });
+    }
+  }
+
+  const plans = [
+    {
+      provider: { name: 'PawGuard Insurance' },
+      name: 'Basic Care',
+      description: 'Covers accidents and illness up to 50 million VND',
+      monthlyPremium: 120000,
+      annualPremium: 1350000,
+      coverageAmount: 50000000,
+      keyFeatures: ['Accident Coverage', 'Illness Coverage', 'Vet Visits'],
+    },
+    {
+      provider: { name: 'PawGuard Insurance' },
+      name: 'Premium Care',
+      description: 'Full coverage including dental and chronic conditions',
+      monthlyPremium: 250000,
+      annualPremium: 2800000,
+      coverageAmount: 150000000,
+      keyFeatures: ['Accident', 'Illness', 'Dental', 'Chronic Conditions', 'Surgery'],
+    },
+    {
+      provider: { name: 'FelineShield' },
+      name: 'Essential Plan',
+      description: 'Budget-friendly protection for young cats',
+      monthlyPremium: 85000,
+      annualPremium: 950000,
+      coverageAmount: 30000000,
+      keyFeatures: ['Accident Coverage', 'Basic Illness'],
+    },
+  ];
+
+  for (const p of plans) {
+    let provider = await prisma.insuranceProvider.findFirst({ where: { name: p.provider.name } });
+    if (!provider) {
+      // create provider if missing
+      provider = await prisma.insuranceProvider.create({ data: { name: p.provider.name } });
+    }
+    await prisma.insurancePlan.create({
+      data: {
+        providerId: provider.id,
+        name: p.name,
+        description: p.description,
+        monthlyPremium: p.monthlyPremium,
+        annualPremium: p.annualPremium,
+        coverageAmount: p.coverageAmount,
+        keyFeatures: p.keyFeatures,
+      },
+    });
+  }
 }
 
 main()

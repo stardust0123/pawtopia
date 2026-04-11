@@ -30,6 +30,7 @@ model User {
   name      String?
   role      Role     @default(USER)
   createdAt DateTime @default(now())
+  policies Policy[]
 }
 
 model Hotel {
@@ -142,3 +143,57 @@ model Booking {
 
   @@index([email])
 }
+
+// ── CAT INSURANCE MODELS ──
+model InsuranceProvider {
+  id          Int             @id @default(autoincrement())
+  name        String
+  logoUrl     String?
+  description String?
+  plans       InsurancePlan[]
+}
+
+model InsurancePlan {
+  id               Int               @id @default(autoincrement())
+  providerId       Int
+  name             String
+  description      String
+  monthlyPremium   Float
+  annualPremium    Float
+  coverageAmount   Int               // maximum payout
+  keyFeatures      String[]          // e.g. ["Accident", "Illness", "Dental"]
+  provider         InsuranceProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  policies         Policy[]
+}
+
+model Policy {
+  id                    Int           @id @default(autoincrement())
+  userId                Int
+  planId                Int
+  catName               String
+  catBreed              String
+  catAge                Int
+  medicalHistory        String?       // optional notes
+  startDate             DateTime
+  endDate               DateTime
+  status                String        @default("Active")
+  stripePaymentIntentId String?
+  paid                  Boolean       @default(false)
+  createdAt             DateTime      @default(now())
+
+  user                  User          @relation(fields: [userId], references: [id])
+  plan                  InsurancePlan @relation(fields: [planId], references: [id])
+  claims                Claim[]
+}
+
+model Claim {
+  id          Int      @id @default(autoincrement())
+  policyId    Int
+  description String
+  amount      Float?
+  status      String   @default("Pending")   // Pending, Approved, Rejected
+  submittedAt DateTime @default(now())
+
+  policy      Policy   @relation(fields: [policyId], references: [id], onDelete: Cascade)
+}
+
